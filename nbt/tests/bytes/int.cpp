@@ -12,6 +12,7 @@
 
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
 #include "solismc_io/dataset/0_int.hpp"
+#include <cstdint>
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
@@ -23,12 +24,24 @@ TEST_CASE("BytesParser<NBT::Int>") {
 
   //  --------------------------------------------------------------------------
   SUBCASE("[INT1] Normal case") {
-    auto *p = int1::BYTES;
-    auto n = int1::N_BYTES;
+    auto *p = INT1::BYTES;
+    auto n = INT1::N_BYTES;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::ENDED);
-    CHECK_EQ(parser.get(), int1::VALUE);
+    CHECK_EQ(parser.get(), INT1::VALUE);
     CHECK_EQ(n, 0);
+  }
+  //  --------------------------------------------------------------------------
+  SUBCASE("[STREAM_INT1] Two ints") {
+    auto *p = STREAM_INT1::STREAM;
+    auto n = STREAM_INT1::N_BYTES;
+
+    for (std::size_t i = 0; i < STREAM_INT1::N_VALUES; i++) {
+      auto ret = parser.parse(p, n);
+      CHECK_EQ(ret, ParseResult::ENDED);
+      CHECK_EQ(parser.get(), STREAM_INT1::VALUES[i]);
+      CHECK_EQ(n, STREAM_INT1::N_BYTES - sizeof(int32_t) * (i + 1));
+    }
   }
 }

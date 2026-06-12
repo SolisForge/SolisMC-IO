@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
-# Simple value struct
+# Stream structure generation
 # -----------------------------------------------------------------------------
-view: value_struct
+view: stream_struct
 imports:
   - byte_cvt.py
 parameters:
@@ -9,13 +9,16 @@ parameters:
   - value_type
 fields:
   name_upper: $( '${name}'.upper() )
-  bytes: $( byte_cvt.value_to_bytes(${value}, '${pack_fmt}') )
+  n_values: $( len(${value}) )
+  values: $( ','.join([str(v) for v in ${value}]) )
+  bytes: $( byte_cvt.list_to_bytes(${value}, '${pack_fmt}') )
   bytes_str: $( byte_cvt.byte_to_array(${bytes}) )
   n_bytes: $( len(${bytes}) )
 formats:
   "name_upper": "{}"
   "value": "{}"
   "value_type": "{}"
+  "values": "{}"
   "bytes_str": "{}"
 start_lines:
   - "#include <cstdint>"
