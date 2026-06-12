@@ -25,27 +25,20 @@ target_compile_definitions(nbt_java PRIVATE NBT_STREAM_BYTE_ORDER=std::endian::b
 target_compile_definitions(nbt_java PUBLIC NBT_VARIANT=java)
 target_link_libraries(nbt_java solis::utils)
 
-add_solis_executable(nbt_test
-    FILES "${CMAKE_CURRENT_LIST_DIR}/test.cpp"
-)
-target_link_libraries(nbt_test nbt_java)
-
 # =============================================================================
 # Dataset generation
 # =============================================================================
-# set(DATASET_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/dataset")
-# add_custom_target( nbt_dataset
-#     python3 ${CMAKE_CURRENT_LIST_DIR}/data/gen_data.py "${CMAKE_CURRENT_LIST_DIR}/data/models" "${DATASET_GEN_DIR}/solismc_dataset/nbt/"
-#     COMMENT "Building dataset"
-# )
-
+solis_generate_dataset(TEMPLATE nbt_dataset _gen_dir
+    DIRECTORY "nbt/data"
+    HEADER_DIRECTORIES "solismc_io/dataset"
+)
 # =============================================================================
 # Tests
 # =============================================================================
-# add_solis_executable( test_parse
-#     DIRECTORIES "nbt/tests/parser"
-#     DEPENDS nbt solis_external::doctest
-# )
-# target_include_directories(test_parse PRIVATE "${DATASET_GEN_DIR}")
-# add_dependencies(test_parse nbt_dataset)
-# add_test(NAME test_nbt_parse COMMAND test_parse)
+add_solis_executable( test_parse
+    DIRECTORIES "nbt/tests/bytes"
+    DEPENDS nbt_java solis_external::doctest
+)
+target_include_directories(test_parse PRIVATE "${_gen_dir}")
+add_dependencies(test_parse nbt_dataset)
+add_test(NAME test_nbt_parse COMMAND test_parse)

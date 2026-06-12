@@ -54,13 +54,17 @@ ParseResult IntegralByteParser<T>::parse(Stream &strm, Size &n) {
     reset();
 
   // Read more bytes into the integral value
-  read_bytes += from_bytes<T>(strm, n, value, read_bytes);
+  auto n_bytes = from_bytes<T>(strm, n, value, read_bytes);
+  read_bytes += n_bytes;
+  strm += n_bytes;
+  n -= n_bytes;
   return (read_bytes == TYPE_LENGTH) ? ParseResult::ENDED
                                      : ParseResult::UNFINISHED;
 }
 
 template <std::integral T> void IntegralByteParser<T>::reset() {
   read_bytes = 0;
+  value = 0;
 }
 
 // ============================================================================

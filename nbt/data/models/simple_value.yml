@@ -1,0 +1,19 @@
+# -----------------------------------------------------------------------------
+# Example model for dataset generation
+# -----------------------------------------------------------------------------
+view: value_struct
+imports:
+  - byte_cvt.py
+parameters:
+  - pack_fmt
+fields:
+  bytes: $( byte_cvt.int_to_bytes(${value}, '${pack_fmt}') )
+  bytes_str: $( ','.join(f"\'\\x{c:>02x}\'" for c in ${bytes}) )
+  n_bytes: $( len(${bytes}) )
+formats:
+  "name": "{}"
+  "value": "{}"
+  "bytes_str": "{}"
+start_lines:
+  - "#include <cstdint>"
+  - "#include <string>"
