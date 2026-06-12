@@ -58,6 +58,8 @@ struct ByteParserInterface {
   virtual ParseResult parse(Stream *strm, Size &n) = 0;
 };
 
+// ============================================================================
+
 /**
  * @brief Interface for the NBT byte writer implementations
  */
