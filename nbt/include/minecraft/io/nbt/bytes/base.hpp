@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-// Base interface of the NBT byte parsing objects
+// Base object of the NBT byte parsing objects
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      04/06/2026 (created 04/06/2026)
@@ -12,38 +12,45 @@
 #ifndef SOLISMC_IO_NBT_BYTE_PARSING_BASE
 #define SOLISMC_IO_NBT_BYTE_PARSING_BASE
 
-#include <iostream>
+#include "minecraft/io/nbt/bytes/interface.hpp"
 #include <solis/utils/macros.hpp>
-#include <type_traits>
 
 namespace minecraft::nbt::byte {
 
-/**
- * @brief Interface for the NBT byte parser implementations
- *
- */
-struct ByteParserInterface {
-
-  virtual ~ByteParserInterface() = default;
-
-  virtual void foo(int a) const = 0;
-};
-
-template <class T>
-concept _ByteParserImpl = std::is_base_of_v<ByteParserInterface, T>;
-
-struct DefaultParser : public ByteParserInterface {
-
-  void foo(int a) const override { std::cout << a << std::endl; }
-};
+// ============================================================================
+// Parser & writer selector
+// ============================================================================
 
 /**
- * @brief Main
+ * @brief Selector for NBT byte parser.
+ * This struct helps to validate the parser implementation.
  *
- * @tparam T
+ * @tparam T object to construct from the bytes
+ * @tparam _Impl implementation to use to parse this object
  */
-template <typename T, _ByteParserImpl _Impl = DefaultParser>
-struct ByteParser : public _Impl {};
+template <typename T, IsParserImplementation _Impl>
+struct ByteParserSelector : public _Impl {};
+/**
+ * @brief Byte parser for the given object
+ *
+ * @tparam T object to construct from the bytes
+ */
+template <typename T> struct ByteParser;
+
+/**
+ * @brief Selector for NBT byte writer.
+ * This struct helps to validate the writer implementation.
+ *
+ * @tparam T type of the object to write as bytes
+ */
+template <typename T, IsWriterImplementation _Impl>
+struct ByteWriterSelector : public _Impl {};
+/**
+ * @brief Byte writer for the given object
+ *
+ * @tparam T object to construct from the bytes
+ */
+template <typename T> struct ByteWriter;
 
 // ============================================================================
 // Helper macros
@@ -51,8 +58,27 @@ struct ByteParser : public _Impl {};
 /**
  * @brief Register the byte parser implementation
  */
+#define REGISTER_TEMPLATED_BYTE_PARSER(MetaVar, Impl)                          \
+  struct ByteParser<MetaVar> : ByteParserSelector<MetaVar, Impl<MetaVar>> {};
+
+/**
+ * @brief Register the byte parser implementation
+ */
 #define REGISTER_BYTE_PARSER(MetaVar, Impl)                                    \
-  struct ByteParser<MetaVar> : ByteParser<MetaVar, Impl<MetaVar>> {};
+  struct ByteParser<MetaVar> : ByteParserSelector<MetaVar, Impl> {};
+
+/**
+ * @brief Register the byte writer implementation
+ */
+#define REGISTER_TEMPLATED_BYTE_WRITER(MetaVar, Impl)                          \
+  struct ByteWriter<MetaVar> : ByteWriterSelector<MetaVar, Impl<MetaVar>> {};
+/**
+ * @brief Register the byte writer implementation
+ */
+#define REGISTER_BYTE_WRITER(MetaVar, Impl)                                    \
+  struct ByteWriter<MetaVar> : ByteWriterSelector<MetaVar, Impl> {};
+
+// ================================ IN HEADER =================================
 
 /**
  * @brief Register a common parser implementation in headers
@@ -62,13 +88,37 @@ struct ByteParser : public _Impl {};
 
 #define DECLARE_COMMON_NBT_PARSER(...)                                         \
   FOR_EACH(__DECLARE_COMMON_NBT_PARSER__IMPL, __VA_ARGS__)
+
 /**
- * @brief Register a common parser implementation in headers
+ * @brief Register a common writer implementation in headers
+ */
+#define __DECLARE_COMMON_NBT_WRITER__IMPL(T)                                   \
+  extern template struct ByteWriter<T>;
+
+#define DECLARE_COMMON_NBT_WRITER(...)                                         \
+  FOR_EACH(__DECLARE_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
+
+// ================================ IN SOURCE =================================
+
+/**
+ * @brief Export a common parser implementation in source
  */
 #define __EXPORT_COMMON_NBT_PARSER__IMPL(T) template struct ByteParser<T>;
 
 #define EXPORT_COMMON_NBT_PARSER(...)                                          \
   FOR_EACH(__EXPORT_COMMON_NBT_PARSER__IMPL, __VA_ARGS__)
+
+/**
+ * @brief Export a common writer implementation in source
+ */
+#define __EXPORT_COMMON_NBT_WRITER__IMPL(T) template struct ByteWriter<T>;
+
+#define EXPORT_COMMON_NBT_WRITER(...)                                          \
+  FOR_EACH(__EXPORT_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
+
+// ============================================================================
+// Default parser registration
+// ============================================================================
 
 } // namespace minecraft::nbt::byte
 
