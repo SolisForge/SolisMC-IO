@@ -13,9 +13,13 @@
 #define SOLISMC_IO_NBT_BYTE_PARSING_INTERFACE
 
 #include <cstdint>
+#include <solis/utils/macros.hpp>
 #include <type_traits>
 
-namespace minecraft::nbt::byte {
+#define NBT_NAMESPACE(variant) EXPAND1(minecraft::nbt::byte::variant)
+constexpr auto BIT_PER_BYTE{8};
+
+namespace NBT_NAMESPACE(NBT_VARIANT) {
 
 // ============================================================================
 // Results
@@ -23,8 +27,14 @@ namespace minecraft::nbt::byte {
 enum class ParseResult : uint8_t {
   ENDED = 0,      //< The parsing ended successfully with 0 or more bytes left
   UNFINISHED = 1, //< The parsing has not ended yet
-  NOT_ENOUGH = 2  //< Not enough bytes in the stream
 };
+
+constexpr const char *to_string(const ParseResult R) {
+  if (R == ParseResult::ENDED) {
+    return "ENDED";
+  }
+  return "UNFINISHED";
+}
 
 enum class WriteResult : uint8_t {
   ENDED = 0,      //< The writing ended successfully with 0 or more bytes left
@@ -55,7 +65,17 @@ struct ByteParserInterface {
    * @param n the number of bytes left in the stream
    * @return the state of the parsing
    */
-  virtual ParseResult parse(Stream *strm, Size &n) = 0;
+  virtual ParseResult parse(Stream &strm, Size &n) = 0;
+
+  /**
+   * @brief Has the parser finished reading the last value
+   */
+  virtual bool is_done() = 0;
+
+  /**
+   * @brief Reset the internal state of the parser
+   */
+  virtual void reset() = 0;
 };
 
 // ============================================================================
@@ -86,5 +106,5 @@ concept IsParserImplementation = std::is_base_of_v<ByteParserInterface, T>;
 template <class T>
 concept IsWriterImplementation = std::is_base_of_v<ByteWriterInterface, T>;
 
-} // namespace minecraft::nbt::byte
+} // namespace NBT_NAMESPACE(NBT_VARIANT)
 #endif
