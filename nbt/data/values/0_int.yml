@@ -4,8 +4,17 @@
 groups:
   - model: simple_value
     parameters:
+      value_type: "int32_t"
       pack_fmt: "i"
     values:
       int1: 15
       int2: -90
       int3: 256688466
+  - model: stream
+    parameters:
+      value_type: "int32_t"
+      pack_fmt: "i"
+    values:
+      int1:
+        - 15
+        - -90
