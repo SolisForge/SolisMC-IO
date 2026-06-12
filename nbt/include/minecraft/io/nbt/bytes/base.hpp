@@ -15,7 +15,7 @@
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include <solis/utils/macros.hpp>
 
-namespace minecraft::nbt::byte {
+namespace NBT_NAMESPACE(NBT_VARIANT) {
 
 // ============================================================================
 // Parser & writer selector
@@ -114,6 +114,6 @@ template <typename T> struct ByteWriter;
 #define EXPORT_COMMON_NBT_WRITER(...)                                          \
   FOR_EACH(__EXPORT_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
 
-} // namespace minecraft::nbt::byte
+} // namespace NBT_NAMESPACE(NBT_VARIANT)
 
 #endif
