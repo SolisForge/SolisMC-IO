@@ -22,14 +22,13 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 
 /**
- * @brief Selector for NBT byte parser.
- * This struct helps to validate the parser implementation.
+ * @brief Validator for NBT byte parser.
  *
  * @tparam T object to construct from the bytes
  * @tparam _Impl implementation to use to parse this object
  */
 template <typename T, IsParserImplementation _Impl>
-struct ByteParserSelector : public _Impl {};
+struct ByteParserValidator : public _Impl {};
 /**
  * @brief Byte parser for the given object
  *
@@ -38,13 +37,12 @@ struct ByteParserSelector : public _Impl {};
 template <typename T> struct ByteParser;
 
 /**
- * @brief Selector for NBT byte writer.
- * This struct helps to validate the writer implementation.
+ * @brief Validator for NBT byte writer.
  *
  * @tparam T type of the object to write as bytes
  */
 template <typename T, IsWriterImplementation _Impl>
-struct ByteWriterSelector : public _Impl {};
+struct ByteWriterValidator : public _Impl {};
 /**
  * @brief Byte writer for the given object
  *
@@ -59,24 +57,24 @@ template <typename T> struct ByteWriter;
  * @brief Register the byte parser implementation
  */
 #define REGISTER_TEMPLATED_BYTE_PARSER(MetaVar, Impl)                          \
-  struct ByteParser<MetaVar> : ByteParserSelector<MetaVar, Impl<MetaVar>> {};
+  struct ByteParser<MetaVar> : ByteParserValidator<MetaVar, Impl<MetaVar>> {};
 
 /**
  * @brief Register the byte parser implementation
  */
 #define REGISTER_BYTE_PARSER(MetaVar, Impl)                                    \
-  struct ByteParser<MetaVar> : ByteParserSelector<MetaVar, Impl> {};
+  struct ByteParser<MetaVar> : ByteParserValidator<MetaVar, Impl> {};
 
 /**
  * @brief Register the byte writer implementation
  */
 #define REGISTER_TEMPLATED_BYTE_WRITER(MetaVar, Impl)                          \
-  struct ByteWriter<MetaVar> : ByteWriterSelector<MetaVar, Impl<MetaVar>> {};
+  struct ByteWriter<MetaVar> : ByteWriterValidator<MetaVar, Impl<MetaVar>> {};
 /**
  * @brief Register the byte writer implementation
  */
 #define REGISTER_BYTE_WRITER(MetaVar, Impl)                                    \
-  struct ByteWriter<MetaVar> : ByteWriterSelector<MetaVar, Impl> {};
+  struct ByteWriter<MetaVar> : ByteWriterValidator<MetaVar, Impl> {};
 
 // ================================ IN HEADER =================================
 
@@ -115,10 +113,6 @@ template <typename T> struct ByteWriter;
 
 #define EXPORT_COMMON_NBT_WRITER(...)                                          \
   FOR_EACH(__EXPORT_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
-
-// ============================================================================
-// Default parser registration
-// ============================================================================
 
 } // namespace minecraft::nbt::byte
 
