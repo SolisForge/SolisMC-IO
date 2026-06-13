@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------
+# Short NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: simple_value
+    parameters:
+      value_type: "int16_t"
+      pack_fmt: "h"
+    values:
+      short1: 15
+      short2: -90
+      short3: 28000
+  - model: stream
+    parameters:
+      value_type: "int16_t"
+      pack_fmt: "h"
+    values:
+      short1:
+        - 15
+        - -90

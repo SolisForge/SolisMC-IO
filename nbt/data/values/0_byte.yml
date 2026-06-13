@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------
+# Byte NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: simple_value
+    parameters:
+      value_type: "int8_t"
+      pack_fmt: "b"
+    values:
+      byte1: 15
+      byte2: -90
+      byte3: -125
+  - model: stream
+    parameters:
+      value_type: "int8_t"
+      pack_fmt: "b"
+    values:
+      byte1:
+        - 15
+        - -90

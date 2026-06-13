@@ -22,4 +22,3 @@ formats:
   "bytes_str": "{}"
 start_lines:
   - "#include <cstdint>"
-  - "#include <string>"

@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------
+# Long NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: simple_value
+    parameters:
+      value_type: "int64_t"
+      pack_fmt: "q"
+    values:
+      long1: 15
+      long2: -3324140964622568455
+      long3: 7020775304963676070
+  - model: stream
+    parameters:
+      value_type: "int64_t"
+      pack_fmt: "q"
+    values:
+      long1:
+        - 15
+        - -3324140964622568455
