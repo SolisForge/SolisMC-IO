@@ -1,22 +1,31 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-// Integral-types NBT parser & writer declaration
+// Floating-types NBT parser & writer declaration
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      04/06/2026 (created 04/06/2026)
+// Date      13/06/2026 (created 13/06/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#ifndef SOLISMC_IO_NBT_BYTE_PARSING_INTEGRAL
-#define SOLISMC_IO_NBT_BYTE_PARSING_INTEGRAL
+#ifndef SOLISMC_IO_NBT_BYTE_PARSING_FLOATING
+#define SOLISMC_IO_NBT_BYTE_PARSING_FLOATING
 
+#include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include <concepts>
 #include <cstdint>
 
 namespace minecraft::nbt::byte::base {
+
+template <std::floating_point T> struct IntBuffer;
+template <> struct IntBuffer<float> {
+  using T = int32_t;
+};
+template <> struct IntBuffer<double> {
+  using T = int64_t;
+};
 
 // ============================================================================
 
@@ -24,8 +33,8 @@ namespace minecraft::nbt::byte::base {
  * @brief Implementation of the byte parser for the integral types (int, short,
  * ...)
  */
-template <std::integral T, GameVersion GV>
-struct IntegralByteParser : public ByteParserInterface {
+template <std::floating_point T, GameVersion GV>
+struct FloatByteParser : public ByteParserInterface {
 
   static constexpr uint8_t TYPE_LENGTH = sizeof(T);
 
@@ -43,16 +52,23 @@ struct IntegralByteParser : public ByteParserInterface {
 private:
   T value{0};
   uint8_t read_bytes{0};
+  ByteParser<typename IntBuffer<T>::T, GV> int_parser;
 };
-
-// ============================================================================
 
 /**
  * @brief Implementation of the byte writer for the integral types (int, short,
  * ...)
  */
-template <std::integral T, GameVersion GV>
-struct IntegralByteWriter : public ByteWriterInterface {};
+template <std::floating_point T, GameVersion GV>
+struct FloatByteWriter : public ByteWriterInterface {};
+
+// ============================================================================
+// Common specialization registration
+// ============================================================================
+
+// DECLARE_COMMON_NBT_PARSER(float, double)
+
+// DECLARE_COMMON_NBT_WRITER(float, double)
 
 } // namespace minecraft::nbt::byte::base
 
