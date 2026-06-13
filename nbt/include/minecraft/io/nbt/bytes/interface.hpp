@@ -4,49 +4,40 @@
 // Base interface for buffered byte-operations classes
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      09/06/2026 (created 09/06/2026)
+// Date      13/06/2026 (created 13/06/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#ifndef SOLISMC_IO_NBT_BYTE_PARSING_INTERFACE
-#define SOLISMC_IO_NBT_BYTE_PARSING_INTERFACE
+#ifndef SOLISMC_IO_NBT_COMMON_INTERFACE
+#define SOLISMC_IO_NBT_COMMON_INTERFACE
 
-#include <cstdint>
+#include "minecraft/io/nbt/results.hpp"
+#include <bit>
 #include <solis/utils/macros.hpp>
 #include <type_traits>
 
-#define NBT_NAMESPACE(variant) EXPAND1(minecraft::nbt::byte::variant)
-constexpr auto BIT_PER_BYTE{8};
-
-namespace NBT_NAMESPACE(NBT_VARIANT) {
-
-// ============================================================================
-// Results
-// ============================================================================
-enum class ParseResult : uint8_t {
-  ENDED = 0,      //< The parsing ended successfully with 0 or more bytes left
-  UNFINISHED = 1, //< The parsing has not ended yet
-};
-
-constexpr const char *to_string(const ParseResult R) {
-  if (R == ParseResult::ENDED) {
-    return "ENDED";
-  }
-  return "UNFINISHED";
-}
-
-enum class WriteResult : uint8_t {
-  ENDED = 0,      //< The writing ended successfully with 0 or more bytes left
-  UNFINISHED = 1, //< The writing has not ended yet
-};
+namespace minecraft::nbt {
 
 // ============================================================================
 // Common types
 // ============================================================================
 using Stream = const char *;
 using Size = std::size_t;
+constexpr auto BIT_PER_BYTE{8};
 
+enum class GameVersion { JAVA, BEDROCK };
+
+// Endianness
+template <GameVersion GV> struct NBTEndianness;
+template <> struct NBTEndianness<GameVersion::JAVA> {
+  static constexpr auto value = std::endian::big;
+};
+template <> struct NBTEndianness<GameVersion::BEDROCK> {
+  static constexpr auto value = std::endian::little;
+};
+
+namespace byte::base {
 // ============================================================================
 // Interfaces
 // ============================================================================
@@ -78,6 +69,16 @@ struct ByteParserInterface {
   virtual void reset() = 0;
 };
 
+/**
+ * @brief General byte parser
+ *
+ * @tparam typename
+ * @tparam GameVersion
+ */
+template <typename, GameVersion> struct ByteParser {
+  static_assert(false, "The parser for this type was not implemented");
+};
+
 // ============================================================================
 
 /**
@@ -97,6 +98,16 @@ struct ByteWriterInterface {
   virtual ParseResult write(Stream *strm, Size &n) = 0;
 };
 
+/**
+ * @brief General byte writer
+ *
+ * @tparam typename
+ * @tparam GameVersion
+ */
+template <typename, GameVersion> struct ByteWriter {
+  static_assert(false, "The writer for this type was not implemented");
+};
+
 // ============================================================================
 // Concepts
 // ============================================================================
@@ -106,5 +117,99 @@ concept IsParserImplementation = std::is_base_of_v<ByteParserInterface, T>;
 template <class T>
 concept IsWriterImplementation = std::is_base_of_v<ByteWriterInterface, T>;
 
-} // namespace NBT_NAMESPACE(NBT_VARIANT)
+// ============================================================================
+// Parser & writer validator
+// ============================================================================
+
+/**
+ * @brief Validator for NBT byte parser.
+ *
+ * @tparam T object to construct from the bytes
+ * @tparam _Impl implementation to use to parse this object
+ */
+template <typename T, IsParserImplementation _Impl>
+struct ByteParserValidator : public _Impl {};
+
+/**
+ * @brief Validator for NBT byte writer.
+ *
+ * @tparam T type of the object to write as bytes
+ */
+template <typename T, IsWriterImplementation _Impl>
+struct ByteWriterValidator : public _Impl {};
+
+} // namespace byte::base
+
+// ============================================================================
+// Helper macros
+// ============================================================================
+/**
+ * @brief Register the byte parser implementation
+ */
+#define REGISTER_TEMPLATED_BYTE_PARSER(MetaVar, GameVersion, Impl)             \
+  struct ByteParser<MetaVar, GameVersion>                                      \
+      : ByteParserValidator<MetaVar, Impl<MetaVar, GameVersion>> {};
+
+/**
+ * @brief Register the byte parser implementation
+ */
+#define REGISTER_BYTE_PARSER(MetaVar, GameVersion, Impl)                       \
+  struct ByteParser<MetaVar, GameVersion>                                      \
+      : ByteParserValidator<MetaVar, Impl<GameVersion>> {};
+
+/**
+ * @brief Register the byte writer implementation
+ */
+#define REGISTER_TEMPLATED_BYTE_WRITER(MetaVar, GameVersion, Impl)             \
+  struct ByteWriter<MetaVar, GameVersion>                                      \
+      : ByteWriterValidator<MetaVar, Impl<MetaVar, GameVersion>> {};
+/**
+ * @brief Register the byte writer implementation
+ */
+#define REGISTER_BYTE_WRITER(MetaVar, GameVersion, Impl)                       \
+  struct ByteWriter<MetaVar, GameVersion>                                      \
+      : ByteWriterValidator<MetaVar, Impl<GameVersion>> {};
+
+// ================================ IN HEADER =================================
+
+/**
+ * @brief Register a common parser implementation in headers
+ */
+#define DECLARE_COMMON_NBT_PARSER_IMPL(GV, T)                                  \
+  extern template struct ByteParser<T, GV>;
+
+#define DECLARE_COMMON_NBT_PARSER(...)                                         \
+  FOR_EACH2(DECLARE_COMMON_NBT_PARSER_IMPL, __VA_ARGS__)
+
+/**
+ * @brief Register a common writer implementation in headers
+ */
+#define __DECLARE_COMMON_NBT_WRITER__IMPL(GV, T)                               \
+  extern template struct ByteWriter<T, GV>;
+
+#define DECLARE_COMMON_NBT_WRITER(...)                                         \
+  FOR_EACH2(__DECLARE_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
+
+// ================================ IN SOURCE =================================
+
+/**
+ * @brief Export a common parser implementation in source
+ */
+#define __EXPORT_COMMON_NBT_PARSER__IMPL(GV, T)                                \
+  template struct ByteParser<T, GV>;
+
+#define EXPORT_COMMON_NBT_PARSER(...)                                          \
+  FOR_EACH2(__EXPORT_COMMON_NBT_PARSER__IMPL, __VA_ARGS__)
+
+/**
+ * @brief Export a common writer implementation in source
+ */
+#define __EXPORT_COMMON_NBT_WRITER__IMPL(GV, T)                                \
+  template struct ByteWriter<T, GV>;
+
+#define EXPORT_COMMON_NBT_WRITER(...)                                          \
+  FOR_EACH2(__EXPORT_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
+
+} // namespace minecraft::nbt
+
 #endif
