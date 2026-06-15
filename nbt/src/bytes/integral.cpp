@@ -9,15 +9,14 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/io/nbt/bytes/integral.hpp"
+#include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
 #include "common.hpp"
-#include "minecraft/io/nbt/bytes/interface.hpp"
 #include <bit>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
 
-namespace NBT_NAMESPACE(NBT_VARIANT) {
+namespace minecraft::nbt::byte::base {
 
 /**
  * @brief Fill a integral value from bytes
@@ -27,7 +26,7 @@ namespace NBT_NAMESPACE(NBT_VARIANT) {
  * @param out the integral variable to fill
  * @return the number of bytes used
  */
-template <std::integral T>
+template <std::integral T, std::endian origin>
 constexpr uint8_t from_bytes(const Stream &strm, const Size &n, T &out,
                              uint8_t offset) {
   // Compute the loop properties
@@ -36,7 +35,7 @@ constexpr uint8_t from_bytes(const Stream &strm, const Size &n, T &out,
 
   for (uint8_t i = offset; i < offset + n_read; i++) {
     // JAVA byte parsing (values are big-endian)
-    if constexpr (NBT_STREAM_BYTE_ORDER == std::endian::big)
+    if constexpr (origin == std::endian::big)
       out += cvt_byte<T>(strm[i]) << ((TYPE_LENGTH - i - 1) * BIT_PER_BYTE);
     // BEDROCK byte parsing (values are little-endian)
     else
@@ -47,14 +46,15 @@ constexpr uint8_t from_bytes(const Stream &strm, const Size &n, T &out,
 
 // ============================================================================
 
-template <std::integral T>
-ParseResult IntegralByteParser<T>::parse(Stream &strm, Size &n) {
+template <std::integral T, GameVersion GV>
+ParseResult IntegralByteParser<T, GV>::parse(Stream &strm, Size &n) {
   // If we are reading a new value
   if (read_bytes == TYPE_LENGTH)
     reset();
 
   // Read more bytes into the integral value
-  auto n_bytes = from_bytes<T>(strm, n, value, read_bytes);
+  auto n_bytes =
+      from_bytes<T, NBTEndianness<GV>::value>(strm, n, value, read_bytes);
   read_bytes += n_bytes;
   strm += n_bytes;
   n -= n_bytes;
@@ -62,16 +62,19 @@ ParseResult IntegralByteParser<T>::parse(Stream &strm, Size &n) {
                                      : ParseResult::UNFINISHED;
 }
 
-template <std::integral T> void IntegralByteParser<T>::reset() {
+template <std::integral T, GameVersion GV>
+void IntegralByteParser<T, GV>::reset() {
   read_bytes = 0;
   value = 0;
 }
 
-// ============================================================================
-// Common specialization registration
-// ============================================================================
 // Force definition of these ByteParser in this library
-EXPORT_COMMON_NBT_PARSER(int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t,
-                         int64_t, uint64_t)
+EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
+EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
+                         uint64_t);
+EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
+                         int64_t);
+EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
+                         uint64_t);
 
-} // namespace NBT_NAMESPACE(NBT_VARIANT)
+} // namespace minecraft::nbt::byte::base

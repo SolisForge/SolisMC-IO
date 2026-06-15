@@ -12,13 +12,16 @@
 #ifndef SOLISMC_IO_NBT_BYTE_PARSING
 #define SOLISMC_IO_NBT_BYTE_PARSING
 
-#include "minecraft/io/nbt/bytes/binding_bedrock.hpp" // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/binding_java.hpp"
+#include "minecraft/io/nbt/bytes/float.hpp"    // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/interface.hpp"
 
 namespace minecraft::nbt {
 
-template <typename T> using ByteParser = java::ByteParser<T>;
-template <typename T> using ByteWriter = java::ByteWriter<T>;
+template <typename T>
+using ByteParser = byte::base::ByteParser<T, GameVersion::JAVA>;
+template <typename T>
+using ByteWriter = byte::base::ByteWriter<T, GameVersion::JAVA>;
 
 } // namespace minecraft::nbt
 

@@ -61,7 +61,7 @@ struct ByteParserInterface {
   /**
    * @brief Has the parser finished reading the last value
    */
-  virtual bool is_done() = 0;
+  virtual bool is_done() const = 0;
 
   /**
    * @brief Reset the internal state of the parser

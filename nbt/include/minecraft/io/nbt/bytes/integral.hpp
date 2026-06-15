@@ -31,7 +31,7 @@ struct IntegralByteParser : public ByteParserInterface {
 
   ParseResult parse(Stream &strm, Size &n) override;
 
-  inline bool is_done() override { return read_bytes == TYPE_LENGTH; }
+  inline bool is_done() const override { return read_bytes == TYPE_LENGTH; }
 
   void reset() override;
 
@@ -53,6 +53,19 @@ private:
  */
 template <std::integral T, GameVersion GV>
 struct IntegralByteWriter : public ByteWriterInterface {};
+
+template <std::integral T>
+REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::JAVA, IntegralByteParser);
+template <std::integral T>
+REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::BEDROCK, IntegralByteParser);
+
+DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
+DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
+                          uint64_t);
+DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
+                          int64_t);
+DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
+                          uint64_t);
 
 } // namespace minecraft::nbt::byte::base
 

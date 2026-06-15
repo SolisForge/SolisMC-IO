@@ -18,7 +18,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace NBT_NAMESPACE(NBT_VARIANT) {
+namespace minecraft::nbt {
 
 /**
  * @brief Helper function for static cast between a char to a T
@@ -97,6 +97,6 @@ export_to_bytes(const Stream *in, const std::size_t &in_length, Stream *out,
                                                       out_length, offset);
 }
 
-} // namespace NBT_NAMESPACE(NBT_VARIANT)
+} // namespace minecraft::nbt
 
 #endif
