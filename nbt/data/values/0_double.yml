@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------
+# Double NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: simple_value
+    parameters:
+      value_type: "double"
+      pack_fmt: "d"
+    values:
+      double1: 15.0
+      double2: -90.954
+      double3: 1.546464
+  - model: stream
+    parameters:
+      value_type: "double"
+      pack_fmt: "d"
+    values:
+      double1:
+        - 15.2323
+        - -90.454
