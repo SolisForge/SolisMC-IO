@@ -10,8 +10,8 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
 #include "solismc_io/dataset/0_long.hpp"
+#include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
 #include <cstdint>
 #include <doctest/doctest.h>
 

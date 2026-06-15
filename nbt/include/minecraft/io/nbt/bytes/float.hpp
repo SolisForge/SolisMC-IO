@@ -40,7 +40,7 @@ struct FloatByteParser : public ByteParserInterface {
 
   ParseResult parse(Stream &strm, Size &n) override;
 
-  inline bool is_done() override { return read_bytes == TYPE_LENGTH; }
+  inline bool is_done() const override { return int_parser.is_done(); }
 
   void reset() override;
 
@@ -51,9 +51,10 @@ struct FloatByteParser : public ByteParserInterface {
 
 private:
   T value{0};
-  uint8_t read_bytes{0};
   ByteParser<typename IntBuffer<T>::T, GV> int_parser;
 };
+
+// ============================================================================
 
 /**
  * @brief Implementation of the byte writer for the integral types (int, short,
@@ -62,13 +63,13 @@ private:
 template <std::floating_point T, GameVersion GV>
 struct FloatByteWriter : public ByteWriterInterface {};
 
-// ============================================================================
-// Common specialization registration
-// ============================================================================
+template <std::floating_point T>
+REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::JAVA, FloatByteParser);
+template <std::floating_point T>
+REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::BEDROCK, FloatByteParser);
 
-// DECLARE_COMMON_NBT_PARSER(float, double)
-
-// DECLARE_COMMON_NBT_WRITER(float, double)
+DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, float, double);
+DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, float, double);
 
 } // namespace minecraft::nbt::byte::base
 

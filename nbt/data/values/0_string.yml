@@ -1,0 +1,24 @@
+# -----------------------------------------------------------------------------
+# String NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: string_value
+    values:
+      string1: "Hello World !"
+      string2: Foo bar
+      string3: >-
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+        Suspendisse vestibulum urna eget diam euismod, quis scelerisque tellus 
+        sagittis. Cras orci ligula, pretium id condimentum finibus, varius sit 
+        amet turpis. Integer consectetur purus magna, quis elementum dui 
+        ultricies sit amet. Phasellus vitae turpis mattis, bibendum est quis, 
+        interdum velit. Maecenas lacinia lorem vitae nisl volutpat euismod. 
+        Etiam sit amet ligula odio. Mauris posuere pulvinar dictum.
+  # - model: stream
+  #   parameters:
+  #     value_type: "int16_t"
+  #     pack_fmt: "h"
+  #   values:
+  #     short1:
+  #       - 15
+  #       - -90

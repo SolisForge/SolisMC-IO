@@ -1,0 +1,22 @@
+# -----------------------------------------------------------------------------
+# Simple value struct
+# -----------------------------------------------------------------------------
+view: string_struct
+imports:
+  - byte_cvt.py
+fields:
+  name_upper: $( '${name}'.upper() )
+  # ----------- STRING -----------
+  str_bytes: $( '${value}'.encode('utf-8') )
+  str_bytes_str: $( byte_cvt.byte_to_array(${str_bytes}) )
+  str_len: $( len(${str_bytes}) )
+  # ----------- STREAM -----------
+  bytes: $( byte_cvt.value_to_bytes(${str_len}, 'H') + ${str_bytes} )
+  bytes_str: $( byte_cvt.byte_to_array(${bytes}) )
+  n_bytes: $( len(${bytes}) )
+formats:
+  "name_upper": "{}"
+  "bytes_str": "{}"
+  "str_bytes_str": "{}"
+start_lines:
+  - "#include <cstdint>"
