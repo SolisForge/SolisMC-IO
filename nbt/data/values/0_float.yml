@@ -1,0 +1,21 @@
+# -----------------------------------------------------------------------------
+# Float NBT dataset values
+# -----------------------------------------------------------------------------
+groups:
+  - model: simple_value
+    parameters:
+      value_type: "float"
+      pack_fmt: "f"
+      cast: float
+    values:
+      float1: 15.0
+      float2: -90.954
+      float3: 1.546464
+  - model: stream
+    parameters:
+      value_type: "float"
+      pack_fmt: "f"
+    values:
+      float1:
+        - 15.2323
+        - -90.454
