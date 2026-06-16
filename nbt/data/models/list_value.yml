@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# List value struct
+# -----------------------------------------------------------------------------
+view: list_struct
+imports:
+  - byte_cvt.py
+parameters:
+  - pack_fmt
+  - value_type
+fields:
+  name_upper: $( '${name}'.upper() )
+  n_values: $( len(${value}) )
+  value_list: $( ', '.join([str(a) for a in ${value}]) )
+
+  bytes: $( byte_cvt.value_to_bytes(${n_values}, 'I') +  byte_cvt.list_to_bytes(${value}, '${pack_fmt}') )
+  bytes_str: $( byte_cvt.byte_to_array(${bytes}) )
+  n_bytes: $( len(${bytes}) )
+formats:
+  "name_upper": "{}"
+  "value_type": "{}"
+  "value_list": "{}"
+  "n_values": "{}"
+  "bytes_str": "{}"
+start_lines:
+  - "#include <cstdint>"
