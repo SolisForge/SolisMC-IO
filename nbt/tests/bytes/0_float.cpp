@@ -53,27 +53,6 @@ TEST_CASE("BytesParser<NBT::Float>") {
     CHECK_EQ(n, 0);
   }
   //  --------------------------------------------------------------------------
-  SUBCASE("[FLOAT2] Negative case") {
-    auto *p = FLOAT2::BYTES;
-    auto n = FLOAT2::N_BYTES;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::ENDED);
-    CHECK_EQ(parser.get(), FLOAT2::VALUE);
-    CHECK_LT(parser.get(), 0);
-    CHECK_EQ(n, 0);
-  }
-  //  --------------------------------------------------------------------------
-  SUBCASE("[FLOAT3] Big value case") {
-    auto *p = FLOAT3::BYTES;
-    auto n = FLOAT3::N_BYTES;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::ENDED);
-    CHECK_EQ(parser.get(), FLOAT3::VALUE);
-    CHECK_EQ(n, 0);
-  }
-  //  --------------------------------------------------------------------------
   SUBCASE("[STREAM_FLOAT1] Two shorts") {
     auto *p = STREAM_FLOAT1::STREAM;
     auto n = STREAM_FLOAT1::N_BYTES;

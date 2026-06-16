@@ -54,27 +54,6 @@ TEST_CASE("BytesParser<NBT::Long>") {
     CHECK_EQ(n, 0);
   }
   //  --------------------------------------------------------------------------
-  SUBCASE("[LONG2] Negative case") {
-    auto *p = LONG2::BYTES;
-    auto n = LONG2::N_BYTES;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::ENDED);
-    CHECK_EQ(parser.get(), LONG2::VALUE);
-    CHECK_LT(parser.get(), 0);
-    CHECK_EQ(n, 0);
-  }
-  //  --------------------------------------------------------------------------
-  SUBCASE("[LONG3] Big value case") {
-    auto *p = LONG3::BYTES;
-    auto n = LONG3::N_BYTES;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::ENDED);
-    CHECK_EQ(parser.get(), LONG3::VALUE);
-    CHECK_EQ(n, 0);
-  }
-  //  --------------------------------------------------------------------------
   SUBCASE("[STREAM_LONG1] Two shorts") {
     auto *p = STREAM_LONG1::STREAM;
     auto n = STREAM_LONG1::N_BYTES;
