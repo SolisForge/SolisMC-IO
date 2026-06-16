@@ -11,7 +11,6 @@
 // ============================================================================
 #include "minecraft/io/nbt/bytes/string.hpp"
 #include "minecraft/io/nbt/bytes/interface.hpp"
-#include "minecraft/io/nbt/results.hpp"
 #include <cstring>
 
 namespace minecraft::nbt::byte::base {
@@ -35,7 +34,7 @@ ParseResult StringByteParser<GV>::parse(Stream &strm, Size &n) {
 
   // Copy bytes
   auto p = &value.data()[read_bytes];
-  auto n_bytes = std::min(int_parser.get() - read_bytes, n);
+  auto n_bytes = std::min((std::size_t)int_parser.get() - read_bytes, n);
   std::memcpy(p, strm, n_bytes);
 
   // Register copied bytes
@@ -48,14 +47,26 @@ ParseResult StringByteParser<GV>::parse(Stream &strm, Size &n) {
                                           : ParseResult::UNFINISHED;
 }
 
+// ============================================================================
+
 template <GameVersion GV> bool StringByteParser<GV>::is_done() const {
   return (read_bytes > 0) && int_parser.is_done() && read_bytes == value.size();
 }
+
+// ============================================================================
 
 template <GameVersion GV> void StringByteParser<GV>::reset() {
   value = std::string{};
   read_bytes = 0;
   int_parser.reset();
 }
+
+// ============================================================================
+// Force definition of these ByteParser in this library
+// ============================================================================
+EXPORT_TEMPLATE(StringByteParser<GameVersion::JAVA>);
+EXPORT_TEMPLATE(StringByteParser<GameVersion::BEDROCK>);
+EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, std::string);
+EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, std::string);
 
 } // namespace minecraft::nbt::byte::base

@@ -171,13 +171,14 @@ struct ByteWriterValidator : public _Impl {};
       : ByteWriterValidator<MetaVar, Impl<GameVersion>> {};
 
 // ================================ IN HEADER =================================
+#define DECLARE_EXPORTED_TEMPLATE(Template) extern template struct Template;
+
+#define DECLARE_COMMON_NBT_PARSER_IMPL(GV, T)                                  \
+  extern template struct ByteParser<T, GV>;
 
 /**
  * @brief Register a common parser implementation in headers
  */
-#define DECLARE_COMMON_NBT_PARSER_IMPL(GV, T)                                  \
-  extern template struct ByteParser<T, GV>;
-
 #define DECLARE_COMMON_NBT_PARSER(...)                                         \
   FOR_EACH2(DECLARE_COMMON_NBT_PARSER_IMPL, __VA_ARGS__)
 
@@ -191,6 +192,7 @@ struct ByteWriterValidator : public _Impl {};
   FOR_EACH2(__DECLARE_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
 
 // ================================ IN SOURCE =================================
+#define EXPORT_TEMPLATE(Template) template struct Template;
 
 /**
  * @brief Export a common parser implementation in source
