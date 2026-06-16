@@ -8,8 +8,7 @@ fields:
   name_upper: $( '${name}'.upper() )
   # ----------- STRING -----------
   str_bytes: $( '${value}'.encode('utf-8') )
-  str_bytes_str: $( byte_cvt.byte_to_array(${str_bytes}) )
-  str_len: $( len(${str_bytes}) )
+  str_len: $( len('${value}') )
   # ----------- STREAM -----------
   bytes: $( byte_cvt.value_to_bytes(${str_len}, 'H') + ${str_bytes} )
   bytes_str: $( byte_cvt.byte_to_array(${bytes}) )

@@ -13,6 +13,7 @@
 #define SOLISMC_IO_NBT_BYTE_PARSING_STRING
 
 #include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/interface.hpp"
 #include <cstdint>
 #include <string>
 
@@ -40,9 +41,13 @@ template <GameVersion GV> struct StringByteParser : public ByteParserInterface {
   }
 
 private:
-  IntegralByteParser<int32_t, GV> int_parser;
+  /**
+   * @brief String size parser.
+   * The string size is stored as an 16 bits unsigned integer.
+   */
+  IntegralByteParser<uint16_t, GV> int_parser;
   std::string value{};
-  uint8_t read_bytes{0};
+  uint16_t read_bytes{0};
 };
 
 // ============================================================================
@@ -55,12 +60,20 @@ template <GameVersion GV>
 struct StringByteWriter : public ByteWriterInterface {};
 
 // ============================================================================
-// Common specialization registration
+// Register common parser implementation
 // ============================================================================
+// Register byte parser implementation for strings
+template <>
+REGISTER_BYTE_PARSER(std::string, GameVersion::JAVA, StringByteParser);
+template <>
+REGISTER_BYTE_PARSER(std::string, GameVersion::BEDROCK, StringByteParser);
 
-// DECLARE_COMMON_NBT_PARSER(float, double)
-
-// DECLARE_COMMON_NBT_WRITER(float, double)
+// Declare string parser implementations
+DECLARE_EXPORTED_TEMPLATE(StringByteParser<GameVersion::JAVA>);
+DECLARE_EXPORTED_TEMPLATE(StringByteParser<GameVersion::BEDROCK>);
+// Declare byte parser specializations
+DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, std::string);
+DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, std::string);
 
 } // namespace minecraft::nbt::byte::base
 
