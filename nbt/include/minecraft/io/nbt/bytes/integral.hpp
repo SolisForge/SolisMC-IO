@@ -38,7 +38,7 @@ struct IntegralByteParser : public ByteParserInterface {
   /**
    * @brief Get the read value if the parser is done, else 0
    */
-  inline T get() { return (is_done()) ? value : 0; }
+  inline T get() const { return (is_done()) ? value : 0; }
 
 private:
   T value{0};
@@ -53,7 +53,6 @@ private:
  */
 template <std::integral T, GameVersion GV>
 struct IntegralByteWriter : public ByteWriterInterface {};
-
 
 // ============================================================================
 // Register common parser implementation

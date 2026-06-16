@@ -12,8 +12,8 @@
 #ifndef SOLISMC_IO_NBT_COMMON_INTERFACE
 #define SOLISMC_IO_NBT_COMMON_INTERFACE
 
-#include "minecraft/io/nbt/results.hpp"
 #include <bit>
+#include <cstdint>
 #include <solis/utils/macros.hpp>
 #include <type_traits>
 
@@ -25,6 +25,9 @@ namespace minecraft::nbt {
 using Stream = const char *;
 using Size = std::size_t;
 constexpr auto BIT_PER_BYTE{8};
+
+enum class ParseResult : uint8_t { ENDED, UNFINISHED };
+enum class WriteResult : uint8_t { ENDED, UNFINISHED };
 
 enum class GameVersion { JAVA, BEDROCK };
 
@@ -124,18 +127,15 @@ concept IsWriterImplementation = std::is_base_of_v<ByteWriterInterface, T>;
 /**
  * @brief Validator for NBT byte parser.
  *
- * @tparam T object to construct from the bytes
  * @tparam _Impl implementation to use to parse this object
  */
-template <typename T, IsParserImplementation _Impl>
+template <IsParserImplementation _Impl>
 struct ByteParserValidator : public _Impl {};
 
 /**
  * @brief Validator for NBT byte writer.
- *
- * @tparam T type of the object to write as bytes
  */
-template <typename T, IsWriterImplementation _Impl>
+template <IsWriterImplementation _Impl>
 struct ByteWriterValidator : public _Impl {};
 
 } // namespace byte::base
@@ -148,27 +148,27 @@ struct ByteWriterValidator : public _Impl {};
  */
 #define REGISTER_TEMPLATED_BYTE_PARSER(MetaVar, GameVersion, Impl)             \
   struct ByteParser<MetaVar, GameVersion>                                      \
-      : ByteParserValidator<MetaVar, Impl<MetaVar, GameVersion>> {};
+      : ByteParserValidator<Impl<MetaVar, GameVersion>> {};
 
 /**
  * @brief Register the byte parser implementation
  */
 #define REGISTER_BYTE_PARSER(MetaVar, GameVersion, Impl)                       \
   struct ByteParser<MetaVar, GameVersion>                                      \
-      : ByteParserValidator<MetaVar, Impl<GameVersion>> {};
+      : ByteParserValidator<Impl<GameVersion>> {};
 
 /**
  * @brief Register the byte writer implementation
  */
 #define REGISTER_TEMPLATED_BYTE_WRITER(MetaVar, GameVersion, Impl)             \
   struct ByteWriter<MetaVar, GameVersion>                                      \
-      : ByteWriterValidator<MetaVar, Impl<MetaVar, GameVersion>> {};
+      : ByteWriterValidator<Impl<MetaVar, GameVersion>> {};
 /**
  * @brief Register the byte writer implementation
  */
 #define REGISTER_BYTE_WRITER(MetaVar, GameVersion, Impl)                       \
   struct ByteWriter<MetaVar, GameVersion>                                      \
-      : ByteWriterValidator<MetaVar, Impl<GameVersion>> {};
+      : ByteWriterValidator<Impl<GameVersion>> {};
 
 // ================================ IN HEADER =================================
 #define DECLARE_EXPORTED_TEMPLATE(Template) extern template struct Template;
