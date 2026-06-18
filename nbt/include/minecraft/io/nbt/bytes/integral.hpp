@@ -57,7 +57,6 @@ struct IntegralByteWriter : public ByteWriterInterface {};
 // ============================================================================
 // Register common parser implementation
 // ============================================================================
-
 template <std::integral T>
 REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::JAVA, IntegralByteParser);
 template <std::integral T>

@@ -68,6 +68,9 @@ REGISTER_BYTE_PARSER(std::string, GameVersion::JAVA, StringByteParser);
 template <>
 REGISTER_BYTE_PARSER(std::string, GameVersion::BEDROCK, StringByteParser);
 
+// ============================================================================
+// Register common parser implementation
+// ============================================================================
 // Declare string parser implementations
 DECLARE_EXPORTED_TEMPLATE(StringByteParser<GameVersion::JAVA>);
 DECLARE_EXPORTED_TEMPLATE(StringByteParser<GameVersion::BEDROCK>);
