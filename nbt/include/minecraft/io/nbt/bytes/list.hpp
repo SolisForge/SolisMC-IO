@@ -22,15 +22,47 @@ namespace minecraft::nbt::byte::base {
 /**
  * @brief Implementation of the byte parser for the integral types (int, short,
  * ...)
+ * The full implementation must be made in the header file to allow the parsing
+ * of list of any element.
  */
 template <typename T, GameVersion GV>
 struct ListByteParser : public ByteParserInterface {
 
-  ParseResult parse(Stream &strm, Size &n) override;
+  ParseResult parse(Stream &strm, Size &n) override {
+    // Reset parser if last parsing has finished to reset state
+    if (is_done())
+      reset();
 
-  bool is_done() const override;
+    // Parse list size
+    if (!size_parser.is_done()) {
+      if (auto ret = size_parser.parse(strm, n); ret != ParseResult::ENDED)
+        return ret;
 
-  void reset() override;
+      value.resize(size_parser.get());
+    }
+
+    // Parse values
+    for (size_t i = read_elements; i < size_parser.get(); i++) {
+      if (auto ret = value_parser.parse(strm, n); ret != ParseResult::ENDED)
+        break;
+
+      // Save value into the vector
+      value[i] = value_parser.get();
+      value_parser.reset();
+      read_elements++;
+    }
+    return (is_done()) ? ParseResult::ENDED : ParseResult::UNFINISHED;
+  }
+
+  bool is_done() const override {
+    return size_parser.is_done() && read_elements == size_parser.get();
+  }
+
+  void reset() override {
+    read_elements = 0;
+    value = std::vector<T>{};
+    size_parser.reset();
+  }
 
   /**
    * @brief Get the read value if the parser is done, else 0
@@ -65,7 +97,9 @@ template <typename T>
 struct ByteParser<std::vector<T>, GameVersion::BEDROCK>
     : ByteParserValidator<ListByteParser<T, GameVersion::BEDROCK>> {};
 
-// Declare common NBT implementations
+// ============================================================================
+// Register common parser implementation
+// ============================================================================
 DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, std::vector<int8_t>,
                           std::vector<int32_t>, std::vector<int64_t>);
 DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, std::vector<int8_t>,

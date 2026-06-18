@@ -68,7 +68,9 @@ void IntegralByteParser<T, GV>::reset() {
   value = 0;
 }
 
+// ============================================================================
 // Force definition of these ByteParser in this library
+// ============================================================================
 EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
 EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
                          uint64_t);

@@ -32,9 +32,8 @@ void FloatByteParser<T, GV>::reset() {
 }
 
 // ============================================================================
-// Common specialization registration
-// ============================================================================
 // Force definition of these ByteParser in this library
+// ============================================================================
 EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, float, double)
 EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, float, double);
 

@@ -63,6 +63,9 @@ private:
 template <std::floating_point T, GameVersion GV>
 struct FloatByteWriter : public ByteWriterInterface {};
 
+// ============================================================================
+// Register common parser implementation
+// ============================================================================
 template <std::floating_point T>
 REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::JAVA, FloatByteParser);
 template <std::floating_point T>
