@@ -23,6 +23,7 @@ namespace minecraft::nbt {
 // Common types
 // ============================================================================
 using Stream = const char *;
+using Buffer = char *;
 using Size = std::size_t;
 constexpr auto BIT_PER_BYTE{8};
 
@@ -98,7 +99,17 @@ struct ByteWriterInterface {
    * @param n the number of bytes available for writing in the stream
    * @return the state of the writing operation
    */
-  virtual ParseResult write(Stream *strm, Size &n) = 0;
+  virtual WriteResult write(Buffer &strm, Size &n) = 0;
+
+  /**
+   * @brief Has the parser finished writing the last value
+   */
+  virtual bool is_done() const = 0;
+
+  /**
+   * @brief Reset the internal state of the parser
+   */
+  virtual void reset() = 0;
 };
 
 /**

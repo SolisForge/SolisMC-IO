@@ -52,7 +52,28 @@ private:
  * ...)
  */
 template <std::integral T, GameVersion GV>
-struct IntegralByteWriter : public ByteWriterInterface {};
+struct IntegralByteWriter : public ByteWriterInterface {
+
+  static constexpr uint8_t TYPE_LENGTH = sizeof(T);
+
+  /**
+   * @brief Set the value to write
+   */
+  inline void set(const T in_value) {
+    reset();
+    value = in_value;
+  }
+
+  inline bool is_done() const override { return written_bytes == TYPE_LENGTH; }
+
+  WriteResult write(Buffer &strm, Size &n) override;
+
+  void reset() override;
+
+private:
+  T value{0};
+  uint8_t written_bytes{0};
+};
 
 // ============================================================================
 // Register common parser implementation
@@ -61,6 +82,10 @@ template <std::integral T>
 REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::JAVA, IntegralByteParser);
 template <std::integral T>
 REGISTER_TEMPLATED_BYTE_PARSER(T, GameVersion::BEDROCK, IntegralByteParser);
+template <std::integral T>
+REGISTER_TEMPLATED_BYTE_WRITER(T, GameVersion::JAVA, IntegralByteWriter)
+template <std::integral T>
+REGISTER_TEMPLATED_BYTE_WRITER(T, GameVersion::BEDROCK, IntegralByteWriter)
 
 DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
 DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
@@ -68,6 +93,13 @@ DECLARE_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
 DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
                           int64_t);
 DECLARE_COMMON_NBT_PARSER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
+                          uint64_t);
+DECLARE_COMMON_NBT_WRITER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
+DECLARE_COMMON_NBT_WRITER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
+                          uint64_t);
+DECLARE_COMMON_NBT_WRITER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
+                          int64_t);
+DECLARE_COMMON_NBT_WRITER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
                           uint64_t);
 
 } // namespace minecraft::nbt::byte::base

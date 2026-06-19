@@ -12,10 +12,16 @@
 
 #include "solismc_io/dataset/0_int.hpp"
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/interface.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <doctest/doctest.h>
 
+#include "common.hpp"
+
 using namespace minecraft::nbt;
+
+constexpr auto TYPE_SIZE{sizeof(int32_t)};
 
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Int>") {
@@ -63,7 +69,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
       CHECK_EQ(ret, ParseResult::ENDED);
       CHECK_EQ(parser.get(), STREAM_INT1::VALUES[i]);
-      CHECK_EQ(n, STREAM_INT1::N_BYTES - sizeof(int32_t) * (i + 1));
+      CHECK_EQ(n, STREAM_INT1::N_BYTES - TYPE_SIZE * (i + 1));
     }
   }
   //  --------------------------------------------------------------------------
@@ -76,7 +82,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
       CHECK_EQ(ret, ParseResult::ENDED);
       CHECK_EQ(parser.get(), STREAM_INT1::VALUES[i]);
-      CHECK_EQ(n, STREAM_INT1::N_BYTES - 2 - sizeof(int32_t) * (i + 1));
+      CHECK_EQ(n, STREAM_INT1::N_BYTES - 2 - TYPE_SIZE * (i + 1));
     }
 
     // Incomplete parsing
@@ -84,5 +90,87 @@ TEST_CASE("BytesParser<NBT::Int>") {
     CHECK_EQ(ret, ParseResult::UNFINISHED);
     CHECK_EQ(parser.get(), 0);
     CHECK_EQ(n, 0);
+  }
+}
+
+// ============================================================================
+TEST_CASE("BytesWriter<NBT::Int>") {
+
+  ByteWriter<int32_t> dumper;
+  char buffer[4]{'\x00', '\x00', '\x00', '\x00'};
+
+  //  --------------------------------------------------------------------------
+  SUBCASE("[INT1] Normal case") {
+    dumper.set(INT1::VALUE);
+    auto p = buffer;
+    std::size_t n = INT1::N_BYTES;
+
+    auto ret = dumper.write(p, n);
+    check_writing_ended(ret, n);
+    buffers_are_equal(buffer, INT1::BYTES, TYPE_SIZE);
+  }
+  //  --------------------------------------------------------------------------
+  SUBCASE("[INT2] Negative case") {
+    dumper.set(INT2::VALUE);
+    auto p = buffer;
+    auto n = INT2::N_BYTES;
+    auto ret = dumper.write(p, n);
+    check_writing_ended(ret, n);
+    buffers_are_equal(buffer, INT2::BYTES, TYPE_SIZE);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[INT3] Big value case") {
+    dumper.set(INT3::VALUE);
+    auto p = buffer;
+    auto n = INT3::N_BYTES;
+    auto ret = dumper.write(p, n);
+    check_writing_ended(ret, n);
+    buffers_are_equal(buffer, INT3::BYTES, TYPE_SIZE);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[STREAM_INT1] Two ints") {
+    char buffer[STREAM_INT1::N_BYTES]{
+        '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
+    };
+    auto *p = buffer;
+    auto n = STREAM_INT1::N_BYTES;
+
+    for (std::size_t i = 0; i < STREAM_INT1::N_VALUES; i++) {
+      dumper.set(STREAM_INT1::VALUES[i]);
+
+      auto ret = dumper.write(p, n);
+      CHECK_EQ(ret, WriteResult::ENDED);
+      CHECK_EQ(n, STREAM_INT1::N_BYTES - TYPE_SIZE * (i + 1));
+    }
+    buffers_are_equal(buffer, STREAM_INT1::STREAM, STREAM_INT1::N_BYTES);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[STREAM_INT1] Incomplete stream") {
+    char buffer[STREAM_INT1::N_BYTES]{
+        '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
+    };
+    auto *p = buffer;
+    // We induce an incomplete stream
+    auto n = STREAM_INT1::N_BYTES - 2;
+
+    for (std::size_t i = 0; i < STREAM_INT1::N_VALUES - 1; i++) {
+      dumper.set(STREAM_INT1::VALUES[i]);
+      auto ret = dumper.write(p, n);
+      CHECK_EQ(ret, WriteResult::ENDED);
+      CHECK_EQ(n, STREAM_INT1::N_BYTES - 2 - TYPE_SIZE * (i + 1));
+    }
+
+    // Incomplete parsing
+    dumper.set(STREAM_INT1::VALUES[STREAM_INT1::N_VALUES - 1]);
+    auto ret = dumper.write(p, n);
+    CHECK_EQ(ret, WriteResult::UNFINISHED);
+    CHECK_EQ(n, 0);
+
+    // Check buffers
+    uint8_t max_index = STREAM_INT1::N_BYTES - 2;
+    for (std::size_t i = 0; i < max_index; i++)
+      CHECK_EQ(buffer[i], STREAM_INT1::STREAM[i]);
+    for (uint8_t i = max_index; i < STREAM_INT1::N_VALUES * TYPE_SIZE; i++)
+      CHECK_EQ(buffer[i], 0);
   }
 }
