@@ -11,12 +11,17 @@
 // ============================================================================
 #include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
 #include "common.hpp"
+#include "minecraft/io/nbt/bytes/interface.hpp"
 #include <bit>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
 
 namespace minecraft::nbt::byte::base {
+
+// ============================================================================
+// Utils
+// ============================================================================
 
 /**
  * @brief Fill a integral value from bytes
@@ -33,17 +38,50 @@ constexpr uint8_t from_bytes(const Stream &strm, const Size &n, T &out,
   constexpr auto TYPE_LENGTH = sizeof(T);
   const auto n_read = static_cast<uint8_t>(std::min(n, sizeof(T) - offset));
 
-  for (uint8_t i = offset; i < offset + n_read; i++) {
+  for (uint8_t i = 0; i < n_read; i++) {
     // JAVA byte parsing (values are big-endian)
     if constexpr (origin == std::endian::big)
-      out += cvt_byte<T>(strm[i]) << ((TYPE_LENGTH - i - 1) * BIT_PER_BYTE);
+      out += cvt_byte<T>(strm[i])
+             << ((TYPE_LENGTH - i - offset - 1) * BIT_PER_BYTE);
     // BEDROCK byte parsing (values are little-endian)
     else
-      out += cvt_byte<T>(strm[i]) << (i * BIT_PER_BYTE);
+      out += cvt_byte<T>(strm[i]) << ((i + offset) * BIT_PER_BYTE);
   }
   return n_read;
 }
 
+// ============================================================================
+
+/**
+ * @brief Fill a byte buffer from an integral value
+ *
+ * @param in the value to write
+ * @param strm the buffer to write to
+ * @param n the number of bytes left in the buffer
+ * @return the number of bytes used
+ */
+template <std::integral T, std::endian dest>
+constexpr uint8_t to_bytes(const T &in, Buffer &strm, const Size &n,
+                           uint8_t offset) {
+  // Compute the loop properties
+  constexpr auto TYPE_LENGTH = sizeof(T);
+  const auto n_write = static_cast<uint8_t>(std::min(n, sizeof(T) - offset));
+
+  for (uint8_t i = 0; i < n_write; i++) {
+    uint8_t shift;
+    // JAVA byte parsing (values are big-endian)
+    if constexpr (dest == std::endian::big)
+      shift = BIT_PER_BYTE * (TYPE_LENGTH - 1 - i - offset);
+    else
+      shift = BIT_PER_BYTE * (i + offset);
+    strm[i] = static_cast<int8_t>(
+        static_cast<uint8_t>((in & (0xff << shift)) >> shift));
+  }
+  return n_write;
+}
+
+// ============================================================================
+// Byte parser
 // ============================================================================
 
 template <std::integral T, GameVersion GV>
@@ -69,6 +107,32 @@ void IntegralByteParser<T, GV>::reset() {
 }
 
 // ============================================================================
+// Byte writer
+// ============================================================================
+
+template <std::integral T, GameVersion GV>
+WriteResult IntegralByteWriter<T, GV>::write(Buffer &strm, Size &n) {
+  // Reset parser if done
+  if (is_done())
+    reset();
+
+  // Write more bytes into the buffer
+  auto n_bytes =
+      to_bytes<T, NBTEndianness<GV>::value>(value, strm, n, written_bytes);
+  written_bytes += n_bytes;
+  strm += n_bytes;
+  n -= n_bytes;
+  return (is_done()) ? WriteResult::ENDED : WriteResult::UNFINISHED;
+}
+
+// ============================================================================
+template <std::integral T, GameVersion GV>
+void IntegralByteWriter<T, GV>::reset() {
+  value = 0;
+  written_bytes = 0;
+}
+
+// ============================================================================
 // Force definition of these ByteParser in this library
 // ============================================================================
 EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
@@ -77,6 +141,13 @@ EXPORT_COMMON_NBT_PARSER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
 EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
                          int64_t);
 EXPORT_COMMON_NBT_PARSER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
+                         uint64_t);
+EXPORT_COMMON_NBT_WRITER(GameVersion::JAVA, int8_t, int16_t, int32_t, int64_t);
+EXPORT_COMMON_NBT_WRITER(GameVersion::JAVA, uint8_t, uint16_t, uint32_t,
+                         uint64_t);
+EXPORT_COMMON_NBT_WRITER(GameVersion::BEDROCK, int8_t, int16_t, int32_t,
+                         int64_t);
+EXPORT_COMMON_NBT_WRITER(GameVersion::BEDROCK, uint8_t, uint16_t, uint32_t,
                          uint64_t);
 
 } // namespace minecraft::nbt::byte::base
