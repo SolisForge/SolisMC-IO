@@ -21,12 +21,13 @@
 
 using namespace minecraft::nbt;
 
-constexpr auto TYPE_SIZE{sizeof(int32_t)};
+using INT_TYPE = int32_t;
+constexpr auto TYPE_SIZE{sizeof(INT_TYPE)};
 
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Int>") {
 
-  ByteParser<int32_t> parser;
+  ByteParser<INT_TYPE> parser;
 
   //  --------------------------------------------------------------------------
   SUBCASE("[INT1] Normal case") {
@@ -96,8 +97,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
 // ============================================================================
 TEST_CASE("BytesWriter<NBT::Int>") {
 
-  ByteWriter<int32_t> dumper;
-  std::array<char, 4> buffer;
+  ByteWriter<INT_TYPE> dumper;
+  std::array<char, TYPE_SIZE> buffer;
 
   //  --------------------------------------------------------------------------
   SUBCASE("[INT1] Normal case") {

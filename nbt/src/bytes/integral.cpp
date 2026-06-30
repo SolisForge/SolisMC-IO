@@ -69,13 +69,14 @@ constexpr uint8_t to_bytes(const T &in, Buffer &strm, const Size &n,
 
   for (uint8_t i = 0; i < n_write; i++) {
     uint8_t shift;
-    // JAVA byte parsing (values are big-endian)
+    // JAVA byte writing (values are big-endian)
     if constexpr (dest == std::endian::big)
       shift = BIT_PER_BYTE * (TYPE_LENGTH - 1 - i - offset);
+    // BEDROCK byte writing (values are little-endian)
     else
       shift = BIT_PER_BYTE * (i + offset);
     strm[i] = static_cast<int8_t>(
-        static_cast<uint8_t>((in & (0xff << shift)) >> shift));
+        static_cast<uint8_t>((in & (((T)0xff) << shift)) >> shift));
   }
   return n_write;
 }
