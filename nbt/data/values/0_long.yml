@@ -8,8 +8,8 @@ groups:
       pack_fmt: "q"
     values:
       long1: 15
-      long2: -3324140964622568455
-      long3: 7020775304963676070
+      long2: -3324140964622568
+      long3: 4223372036854775807
   - model: stream
     parameters:
       value_type: "int64_t"
@@ -17,4 +17,4 @@ groups:
     values:
       long1:
         - 15
-        - -3324140964622568455
+        - -3324140964622568
