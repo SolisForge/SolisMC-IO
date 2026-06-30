@@ -13,6 +13,7 @@
 #define SOLISMC_IO_NBT_BYTE_UNITTESTS
 
 #include "minecraft/io/nbt/bytes/interface.hpp"
+#include <array>
 #include <doctest/doctest.h>
 
 using minecraft::nbt::ParseResult;
@@ -21,6 +22,13 @@ using minecraft::nbt::Stream;
 using minecraft::nbt::WriteResult;
 
 inline void buffers_are_equal(const Stream &a, const Stream &b, short n) {
+  for (short i = 0; i < n; i++) {
+    CHECK_EQ(a[i], b[i]);
+  }
+}
+template <std::size_t N>
+inline void buffers_are_equal(const std::array<char, N> &a, const Stream &b,
+                              short n) {
   for (short i = 0; i < n; i++) {
     CHECK_EQ(a[i], b[i]);
   }

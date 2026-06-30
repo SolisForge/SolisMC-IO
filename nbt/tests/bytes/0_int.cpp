@@ -12,7 +12,7 @@
 
 #include "solismc_io/dataset/0_int.hpp"
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/interface.hpp"
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <doctest/doctest.h>
@@ -97,12 +97,12 @@ TEST_CASE("BytesParser<NBT::Int>") {
 TEST_CASE("BytesWriter<NBT::Int>") {
 
   ByteWriter<int32_t> dumper;
-  char buffer[4]{'\x00', '\x00', '\x00', '\x00'};
+  std::array<char, 4> buffer;
 
   //  --------------------------------------------------------------------------
   SUBCASE("[INT1] Normal case") {
     dumper.set(INT1::VALUE);
-    auto p = buffer;
+    auto p = buffer.data();
     std::size_t n = INT1::N_BYTES;
 
     auto ret = dumper.write(p, n);
@@ -112,7 +112,7 @@ TEST_CASE("BytesWriter<NBT::Int>") {
   //  --------------------------------------------------------------------------
   SUBCASE("[INT2] Negative case") {
     dumper.set(INT2::VALUE);
-    auto p = buffer;
+    auto p = buffer.data();
     auto n = INT2::N_BYTES;
     auto ret = dumper.write(p, n);
     check_writing_ended(ret, n);
@@ -121,7 +121,7 @@ TEST_CASE("BytesWriter<NBT::Int>") {
   // --------------------------------------------------------------------------
   SUBCASE("[INT3] Big value case") {
     dumper.set(INT3::VALUE);
-    auto p = buffer;
+    auto p = buffer.data();
     auto n = INT3::N_BYTES;
     auto ret = dumper.write(p, n);
     check_writing_ended(ret, n);
@@ -129,10 +129,8 @@ TEST_CASE("BytesWriter<NBT::Int>") {
   }
   // --------------------------------------------------------------------------
   SUBCASE("[STREAM_INT1] Two ints") {
-    char buffer[STREAM_INT1::N_BYTES]{
-        '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
-    };
-    auto *p = buffer;
+    std::array<char, STREAM_INT1::N_BYTES> long_buffer;
+    auto *p = long_buffer.data();
     auto n = STREAM_INT1::N_BYTES;
 
     for (std::size_t i = 0; i < STREAM_INT1::N_VALUES; i++) {
@@ -142,14 +140,12 @@ TEST_CASE("BytesWriter<NBT::Int>") {
       CHECK_EQ(ret, WriteResult::ENDED);
       CHECK_EQ(n, STREAM_INT1::N_BYTES - TYPE_SIZE * (i + 1));
     }
-    buffers_are_equal(buffer, STREAM_INT1::STREAM, STREAM_INT1::N_BYTES);
+    buffers_are_equal(long_buffer, STREAM_INT1::STREAM, STREAM_INT1::N_BYTES);
   }
   // --------------------------------------------------------------------------
   SUBCASE("[STREAM_INT1] Incomplete stream") {
-    char buffer[STREAM_INT1::N_BYTES]{
-        '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00',
-    };
-    auto *p = buffer;
+    std::array<char, STREAM_INT1::N_BYTES> long_buffer;
+    auto *p = long_buffer.data();
     // We induce an incomplete stream
     auto n = STREAM_INT1::N_BYTES - 2;
 
@@ -169,8 +165,8 @@ TEST_CASE("BytesWriter<NBT::Int>") {
     // Check buffers
     uint8_t max_index = STREAM_INT1::N_BYTES - 2;
     for (std::size_t i = 0; i < max_index; i++)
-      CHECK_EQ(buffer[i], STREAM_INT1::STREAM[i]);
+      CHECK_EQ(long_buffer[i], STREAM_INT1::STREAM[i]);
     for (uint8_t i = max_index; i < STREAM_INT1::N_VALUES * TYPE_SIZE; i++)
-      CHECK_EQ(buffer[i], 0);
+      CHECK_EQ(long_buffer[i], 0);
   }
 }
