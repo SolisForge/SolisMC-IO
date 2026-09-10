@@ -24,6 +24,16 @@ struct DecodingNotImplemented : public solis::SolisError {
       : solis::SolisError(std::format(
             "Decoding for type {} is not implemented ", to_str(tag))) {}
 };
+// ============================================================================
+struct EncodingNotImplemented : public solis::SolisError {
+
+  explicit EncodingNotImplemented(Tags const tag)
+      : solis::SolisError(std::format(
+            "Encoding for type {} is not implemented ", to_str(tag))) {}
+};
 
 // ============================================================================
 int decode_bytes(std::string &bytes, Tags const tag);
+
+// ============================================================================
+int encode_bytes(std::string const &value, Tags const tag);

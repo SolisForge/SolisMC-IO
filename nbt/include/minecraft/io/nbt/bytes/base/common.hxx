@@ -27,6 +27,14 @@ enum class ParseResult : uint8_t {
   ENDED       //< Parsing has ended
 };
 
+/**
+ * @brief Result of the byte parsing
+ */
+enum class DumpResult : uint8_t {
+  UNFINISHED, //< Dump is not finished yet
+  ENDED       //< Dump has ended
+};
+
 // ============================================================================
 
 /**

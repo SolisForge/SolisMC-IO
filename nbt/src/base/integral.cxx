@@ -11,26 +11,42 @@
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
 #include <cstdint>
-#include <iostream>
 
 #include "byte_helper.hxx"
+#include "minecraft/io/nbt/bytes/base/common.hxx"
 
 namespace minecraft::nbt::byte::base {
 
 // ============================================================================
-// Implementation for each endianness
+// Implementations
 // ============================================================================
+#define ARGS Stream &strm, IntWRState &state, const uint8_t tlen, char *value
+#define FWD strm, state, tlen, value
+
+template <std::endian endianess> inline ParseResult parse_int_from_bytes(ARGS) {
+  state.processed_char +=
+      helper::read_bytes<endianess>(strm, value, tlen, state.processed_char);
+  return (state.processed_char == tlen) ? ParseResult::ENDED
+                                        : ParseResult::UNFINISHED;
+}
+
+template <std::endian endianess> inline DumpResult write_int_from_bytes(ARGS) {
+  state.processed_char +=
+      helper::write_bytes<endianess>(strm, value, tlen, state.processed_char);
+  return (state.processed_char == tlen) ? DumpResult::ENDED
+                                        : DumpResult::UNFINISHED;
+}
+
+// ============================================================================
+// Endianess bindings
+// ============================================================================
+
 #define BIND(endianess)                                                        \
-  template <>                                                                  \
-  ParseResult read_integral<endianess>(Stream & strm, IntParseState & state,   \
-                                       const uint8_t tlen, char *value) {      \
-    auto read =                                                                \
-        helper::copy_bytes<endianess>(strm, value, tlen, state.read_char);     \
-    state.read_char += read;                                                   \
-    std::cout << "Current state = " << (int)state.read_char                    \
-              << " / type length = " << (int)tlen << std::endl;                \
-    return (state.read_char == tlen) ? ParseResult::ENDED                      \
-                                     : ParseResult::UNFINISHED;                \
+  template <> ParseResult read_integral<endianess>(ARGS) {                     \
+    return parse_int_from_bytes<endianess>(FWD);                               \
+  }                                                                            \
+  template <> DumpResult write_integral<endianess>(ARGS) {                     \
+    return write_int_from_bytes<endianess>(FWD);                               \
   }
 
 BIND(std::endian::little)
@@ -38,15 +54,19 @@ BIND(std::endian::big)
 
 } // namespace minecraft::nbt::byte::base
 
+#undef ARGS
+
 // ============================================================================
 // Export
 // ============================================================================
 namespace minecraft::nbt::byte {
 
-#define ARGS(T) Stream &strm, IntParseState &state, T &value
+#define ARGS(T) Stream &strm, IntWRState &state, T &value
 #define EXPORT(type)                                                           \
   template ParseResult read_int<type, GameVersion::JAVA>(ARGS(type));          \
-  template ParseResult read_int<type, GameVersion::BEDROCK>(ARGS(type));
+  template ParseResult read_int<type, GameVersion::BEDROCK>(ARGS(type));       \
+  template DumpResult write_int<type, GameVersion::JAVA>(ARGS(type));          \
+  template DumpResult write_int<type, GameVersion::BEDROCK>(ARGS(type));
 
 EXPORT(int8_t);
 EXPORT(int16_t);

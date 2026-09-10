@@ -9,7 +9,7 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "decode.hxx"
+#include "processing.hxx"
 #include <concepts>
 #include <cstdlib>
 #include <iostream>
@@ -29,14 +29,14 @@ int display_value(T const &value, ParseResult const &result) {
 }
 
 template <std::signed_integral T> int decode_integral(Stream &strm) {
-  IntParseState state;
+  IntWRState state;
   T value;
   auto ret = java::read_int<T>(strm, state, value);
   return display_value(value, ret);
 }
 
 template <std::floating_point T> int decode_float(Stream &strm) {
-  FloatParseState state;
+  FloatRWState state;
   T value;
   auto ret = java::read_float<T>(strm, state, value);
   return display_value(value, ret);
@@ -45,8 +45,9 @@ template <std::floating_point T> int decode_float(Stream &strm) {
 // ============================================================================
 int decode_bytes(std::string &bytes, const Tags tag) {
   Stream strm{bytes.data(), bytes.length()};
-  using enum minecraft::nbt::Tags;
   switch (tag) {
+    using enum minecraft::nbt::Tags;
+
     // Integral type
   case BYTE:
     return decode_integral<int8_t>(strm);

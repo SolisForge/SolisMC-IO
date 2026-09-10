@@ -64,6 +64,12 @@ Options parse_args(int argc, char **argv) {
       argc -= 2;
       argv += 2;
     }
+    // Encode option
+    else if (std::strncmp(argv[0], "-e", 2) == 0) {
+      opt.mode = ProcessMode::ENCODE;
+      argc -= 1;
+      argv += 1;
+    }
   }
 
   return opt;

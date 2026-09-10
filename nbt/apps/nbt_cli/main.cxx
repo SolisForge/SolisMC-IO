@@ -10,7 +10,7 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "decode.hxx"
+#include "processing.hxx"
 #include <cstdio>
 #include <cstring>
 
@@ -25,8 +25,10 @@ int main(int argc, char **argv) {
   auto bytes = (opts.input == ReadFrom::STDIN) ? from_stdin()
                                                : from_file(opts.input_file);
   try {
-    auto error = decode_bytes(bytes, opts.data_type);
-    return 0;
+    if (opts.mode == ProcessMode::DECODE)
+      return decode_bytes(bytes, opts.data_type);
+    else
+      return encode_bytes(bytes, opts.data_type);
   } catch (...) {
     return 1;
   }

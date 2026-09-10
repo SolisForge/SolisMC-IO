@@ -32,13 +32,42 @@ namespace helper {
  * @return number of copied bytes
  */
 template <std::endian data_endianness>
-uint8_t copy_bytes(Stream &strm, char *dest, uint8_t type_length,
+uint8_t read_bytes(Stream &strm, char *dest, uint8_t type_length,
                    uint8_t offset) {
   // Get copy positions
   const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
   auto src_start = strm.data;
   auto src_end = strm.data + copy_length;
   auto dest_start = dest + offset;
+
+  // Copy the bytes in the same order as the system
+  if constexpr (std::endian::native == data_endianness)
+    std::copy(src_start, src_end, dest_start);
+  else
+    std::reverse_copy(src_start, src_end, dest_start);
+  strm.inc(copy_length);
+  return (uint8_t)copy_length;
+}
+
+// ============================================================================
+/**
+ * @brief Copy n bytes from a buffer to the stream
+ *
+ * @tparam data_endianness in which endianness should the data stored in
+ * @param strm stream to write bytes into
+ * @param dest buffer to read bytes from
+ * @param type_length length of the type we are copying
+ * @param offset offset to allow partial type reading (reading by block)
+ * @return number of copied bytes
+ */
+template <std::endian data_endianness>
+uint8_t write_bytes(Stream &strm, char *dest, uint8_t type_length,
+                    uint8_t offset) {
+  // Get copy positions
+  const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
+  auto src_start = dest;
+  auto src_end = dest + copy_length;
+  auto dest_start = strm.data + offset;
 
   // Copy the bytes in the same order as the system
   if constexpr (std::endian::native == data_endianness)

@@ -21,11 +21,11 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 // Base implementation
 // ============================================================================
-struct FloatParseState {
-  uint8_t read_char{0};
+struct FloatRWState {
+  uint8_t processed_char{0};
 
   inline auto left(uint8_t tlen) const {
-    return static_cast<std::size_t>(tlen - read_char);
+    return static_cast<std::size_t>(tlen - processed_char);
   }
 };
 
@@ -33,7 +33,7 @@ struct FloatParseState {
 
 namespace base {
 #define ARGS_IMPL                                                              \
-  Stream &strm, FloatParseState &state, const uint8_t tlen, char *value
+  Stream &strm, FloatRWState &state, const uint8_t tlen, char *value
 
 /**
  * @brief Parse a floating-point type from bytes
@@ -46,9 +46,22 @@ namespace base {
  */
 template <std::endian data_endianness> ParseResult read_floating(ARGS_IMPL);
 
+/**
+ * @brief Dump a floating-point type to bytes
+ *
+ * @param strm stream to write to
+ * @param state dump state
+ * @param tlen length of the integral type to write
+ * @param value pointer to the value to read
+ * @return result of the dump
+ */
+template <std::endian data_endianness> DumpResult write_floating(ARGS_IMPL);
+
 // Specializations
 template <> ParseResult read_floating<std::endian::little>(ARGS_IMPL);
 template <> ParseResult read_floating<std::endian::big>(ARGS_IMPL);
+template <> DumpResult write_floating<std::endian::little>(ARGS_IMPL);
+template <> DumpResult write_floating<std::endian::big>(ARGS_IMPL);
 
 #undef ARGS_IMPL
 } // namespace base
@@ -56,7 +69,7 @@ template <> ParseResult read_floating<std::endian::big>(ARGS_IMPL);
 // ============================================================================
 // Bindings
 // ============================================================================
-#define ARGS(T) Stream &strm, FloatParseState &state, T &value
+#define ARGS(T) Stream &strm, FloatRWState &state, T &value
 
 // Java implementation
 // ----------------------------------------------------------------------------
@@ -74,6 +87,20 @@ namespace java {
 template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
   return base::read_floating<std::endian::big>(strm, state, sizeof(T),
                                                (char *)(&value));
+}
+
+/**
+ * @brief Dump a floating-point value to the stream
+ *
+ * @tparam T floating-point type to dump
+ * @param strm stream to write to
+ * @param state dumping state
+ * @param value value object to read
+ * @return result of the dump
+ */
+template <std::floating_point T> inline DumpResult write_float(ARGS(T)) {
+  return base::write_floating<std::endian::big>(strm, state, sizeof(T),
+                                                (char *)(&value));
 }
 
 } // namespace java
@@ -94,6 +121,20 @@ namespace bedrock {
 template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
   return base::read_floating<std::endian::little>(strm, state, sizeof(T),
                                                   (char *)(&value));
+}
+
+/**
+ * @brief Dump a floating-point value to the stream
+ *
+ * @tparam T floating-point type to dump
+ * @param strm stream to write to
+ * @param state dumping state
+ * @param value value object to read
+ * @return result of the dump
+ */
+template <std::floating_point T> inline DumpResult write_float(ARGS(T)) {
+  return base::write_floating<std::endian::big>(strm, state, sizeof(T),
+                                                (char *)(&value));
 }
 
 } // namespace bedrock
@@ -119,6 +160,24 @@ ParseResult read_float(ARGS(T)) {
   return bedrock::read_float(ARGS_FWD);
 }
 
+/**
+ * @tparam GV targeted game version
+ * @brief Dump a floating-point value to the stream
+ *
+ * @tparam T floating-point type to dump
+ * @tparam GV targeted game version
+ * @param strm stream to write to
+ * @param state dumping state
+ * @param value value object to read
+ * @return result of the dump
+ */
+template <std::floating_point T, GameVersion GV = GameVersion::JAVA>
+inline DumpResult write_float(ARGS(T)) {
+  if constexpr (GV == GameVersion::JAVA)
+    return java::write_float(ARGS_FWD);
+  return bedrock::write_float(ARGS_FWD);
+}
+
 #undef ARGS_FWD
 
 // ============================================================================
@@ -127,6 +186,9 @@ ParseResult read_float(ARGS(T)) {
 #define EXPORT(type)                                                           \
   extern template ParseResult read_float<type, GameVersion::JAVA>(ARGS(type)); \
   extern template ParseResult read_float<type, GameVersion::BEDROCK>(          \
+      ARGS(type));                                                             \
+  extern template DumpResult write_float<type, GameVersion::JAVA>(ARGS(type)); \
+  extern template DumpResult write_float<type, GameVersion::BEDROCK>(          \
       ARGS(type));
 
 EXPORT(float)
