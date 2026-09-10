@@ -9,6 +9,7 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
+#include "minecraft/io/nbt/tags.hxx"
 #include "processing.hxx"
 #include <concepts>
 #include <cstdlib>
@@ -16,9 +17,13 @@
 
 #include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/bytes/base/string.hxx"
 
 using namespace minecraft::nbt::byte;
 
+// ============================================================================
+// Helper functions
+// ============================================================================
 template <typename T>
 int display_value(T const &value, ParseResult const &result) {
   if (result == ParseResult::ENDED)
@@ -28,13 +33,15 @@ int display_value(T const &value, ParseResult const &result) {
   return (int)(result);
 }
 
+// ============================================================================
 template <std::signed_integral T> int decode_integral(Stream &strm) {
-  IntWRState state;
+  IntRWState state;
   T value;
   auto ret = java::read_int<T>(strm, state, value);
   return display_value(value, ret);
 }
 
+// ============================================================================
 template <std::floating_point T> int decode_float(Stream &strm) {
   FloatRWState state;
   T value;
@@ -42,6 +49,16 @@ template <std::floating_point T> int decode_float(Stream &strm) {
   return display_value(value, ret);
 }
 
+// ============================================================================
+int decode_string(Stream &strm) {
+  StringRWState state;
+  std::string value;
+  auto ret = java::read_string(strm, state, value);
+  return display_value(value, ret);
+}
+
+// ============================================================================
+// Main function
 // ============================================================================
 int decode_bytes(std::string &bytes, const Tags tag) {
   Stream strm{bytes.data(), bytes.length()};
@@ -63,6 +80,10 @@ int decode_bytes(std::string &bytes, const Tags tag) {
     return decode_float<float>(strm);
   case DOUBLE:
     return decode_float<double>(strm);
+
+  // STRING
+  case STRING:
+    return decode_string(strm);
 
   default:
     throw DecodingNotImplemented(tag);

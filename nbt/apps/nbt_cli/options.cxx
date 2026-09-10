@@ -30,6 +30,9 @@ Tags parse_type(std::string_view const &qualifier) {
     return Tags::FLOAT;
   else if (qualifier.compare("double") == 0)
     return Tags::DOUBLE;
+  // String
+  else if (qualifier.compare("string") == 0)
+    return Tags::STRING;
 
   return Tags::COMPOUND;
 }

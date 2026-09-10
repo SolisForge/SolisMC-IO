@@ -20,21 +20,19 @@ namespace minecraft::nbt::byte::base {
 // ============================================================================
 // Implementations
 // ============================================================================
-#define ARGS Stream &strm, IntWRState &state, const uint8_t tlen, char *value
+#define ARGS Stream &strm, IntRWState &state, const uint8_t tlen, char *value
 #define FWD strm, state, tlen, value
 
 template <std::endian endianess> inline ParseResult parse_int_from_bytes(ARGS) {
-  state.processed_char +=
-      helper::read_bytes<endianess>(strm, value, tlen, state.processed_char);
-  return (state.processed_char == tlen) ? ParseResult::ENDED
-                                        : ParseResult::UNFINISHED;
+  state.processed +=
+      helper::read_bytes<endianess>(strm, value, tlen, state.processed);
+  return (state.left(tlen) == 0) ? ParseResult::ENDED : ParseResult::UNFINISHED;
 }
 
 template <std::endian endianess> inline DumpResult write_int_from_bytes(ARGS) {
-  state.processed_char +=
-      helper::write_bytes<endianess>(strm, value, tlen, state.processed_char);
-  return (state.processed_char == tlen) ? DumpResult::ENDED
-                                        : DumpResult::UNFINISHED;
+  state.processed +=
+      helper::write_bytes<endianess>(strm, value, tlen, state.processed);
+  return (state.left(tlen) == 0) ? DumpResult::ENDED : DumpResult::UNFINISHED;
 }
 
 // ============================================================================
@@ -61,7 +59,7 @@ BIND(std::endian::big)
 // ============================================================================
 namespace minecraft::nbt::byte {
 
-#define ARGS(T) Stream &strm, IntWRState &state, T &value
+#define ARGS(T) Stream &strm, IntRWState &state, T &value
 #define EXPORT(type)                                                           \
   template ParseResult read_int<type, GameVersion::JAVA>(ARGS(type));          \
   template ParseResult read_int<type, GameVersion::BEDROCK>(ARGS(type));       \

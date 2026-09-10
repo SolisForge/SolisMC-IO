@@ -10,6 +10,7 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/common.hxx"
+#include "minecraft/io/nbt/tags.hxx"
 #include "processing.hxx"
 #include <concepts>
 #include <cstdlib>
@@ -18,13 +19,17 @@
 
 #include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/bytes/base/string.hxx"
 
-int display_value(minecraft::nbt::byte::Stream const &strm,
+// ============================================================================
+// Helper functions
+// ============================================================================
+int display_value(std::string const &encoded_data,
                   minecraft::nbt::byte::DumpResult const &result,
                   std::size_t const &tlen) {
   if (result == minecraft::nbt::byte::DumpResult::ENDED) {
     for (std::size_t i = 0; i < tlen; i++) {
-      std::cout << strm.data[i];
+      std::cout << encoded_data[i];
     }
     std::flush(std::cout);
     std::cerr << std::endl;
@@ -33,9 +38,10 @@ int display_value(minecraft::nbt::byte::Stream const &strm,
   return (int)(result);
 }
 
+// ============================================================================
 template <std::signed_integral T>
 int encode_integral(std::string const &value_str) {
-  minecraft::nbt::byte::IntWRState state;
+  minecraft::nbt::byte::IntRWState state;
 
   // Setup the string
   std::string out_str;
@@ -45,9 +51,10 @@ int encode_integral(std::string const &value_str) {
   // Dump value
   auto value = (T)std::strtol(value_str.c_str(), nullptr, 10);
   auto ret = minecraft::nbt::byte::java::write_int<T>(strm, state, value);
-  return display_value(strm, ret, sizeof(T));
+  return display_value(out_str, ret, out_str.size());
 }
 
+// ============================================================================
 template <std::floating_point T>
 int encode_float(std::string const &value_str) {
   minecraft::nbt::byte::FloatRWState state;
@@ -60,9 +67,26 @@ int encode_float(std::string const &value_str) {
   // Dump value
   auto value = (T)std::strtod(value_str.c_str(), nullptr);
   auto ret = minecraft::nbt::byte::java::write_float<T>(strm, state, value);
-  return display_value(strm, ret, sizeof(T));
+  return display_value(out_str, ret, out_str.size());
 }
 
+// ============================================================================
+int encode_string(std::string const &value) {
+  minecraft::nbt::byte::StringRWState state{};
+
+  // Setup the string
+  std::string out_str;
+  // Size == string size - 1 to remove white spaces
+  out_str.resize(sizeof(uint16_t) + value.size());
+  minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
+
+  // Dump value
+  auto ret = minecraft::nbt::byte::java::write_string(strm, state, value);
+  return display_value(out_str, ret, out_str.size() - 1);
+}
+
+// ============================================================================
+// Main function
 // ============================================================================
 int encode_bytes(std::string const &value, const Tags tag) {
   switch (tag) {
@@ -83,6 +107,10 @@ int encode_bytes(std::string const &value, const Tags tag) {
     return encode_float<float>(value);
   case DOUBLE:
     return encode_float<double>(value);
+
+  // STRING
+  case STRING:
+    return encode_string(value);
 
   default:
     throw DecodingNotImplemented(tag);

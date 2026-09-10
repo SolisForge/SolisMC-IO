@@ -12,11 +12,14 @@
 #pragma once
 
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 
 namespace minecraft::nbt::byte {
 
+// ============================================================================
+// Parse / dump results
 // ============================================================================
 
 /**
@@ -36,6 +39,8 @@ enum class DumpResult : uint8_t {
 };
 
 // ============================================================================
+// Stream container
+// ============================================================================
 
 /**
  * @brief Stream container
@@ -50,9 +55,20 @@ struct Stream {
   inline void inc(std::size_t const i = 1) {
     if (n < i)
       return;
-    auto to_add = std::min(i, n - i);
+    auto to_add = std::min(i, n);
     data += to_add;
     n -= to_add;
+  }
+};
+
+// ============================================================================
+// Generic parsing/dumping state
+// ============================================================================
+template <std::unsigned_integral T> struct RWState {
+  T processed{0};
+
+  inline auto left(T size) const {
+    return static_cast<std::size_t>(size - processed);
   }
 };
 

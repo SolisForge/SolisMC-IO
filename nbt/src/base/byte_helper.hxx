@@ -31,9 +31,8 @@ namespace helper {
  * @param offset offset to allow partial type reading (reading by block)
  * @return number of copied bytes
  */
-template <std::endian data_endianness>
-uint8_t read_bytes(Stream &strm, char *dest, uint8_t type_length,
-                   uint8_t offset) {
+template <std::endian data_endianness, std::unsigned_integral T = uint8_t>
+T read_bytes(Stream &strm, char *const dest, T type_length, T offset) {
   // Get copy positions
   const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
   auto src_start = strm.data;
@@ -46,7 +45,7 @@ uint8_t read_bytes(Stream &strm, char *dest, uint8_t type_length,
   else
     std::reverse_copy(src_start, src_end, dest_start);
   strm.inc(copy_length);
-  return (uint8_t)copy_length;
+  return (T)copy_length;
 }
 
 // ============================================================================
@@ -60,9 +59,8 @@ uint8_t read_bytes(Stream &strm, char *dest, uint8_t type_length,
  * @param offset offset to allow partial type reading (reading by block)
  * @return number of copied bytes
  */
-template <std::endian data_endianness>
-uint8_t write_bytes(Stream &strm, char *dest, uint8_t type_length,
-                    uint8_t offset) {
+template <std::endian data_endianness, std::unsigned_integral T = uint8_t>
+T write_bytes(Stream &strm, const char *const dest, T type_length, T offset) {
   // Get copy positions
   const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
   auto src_start = dest;
@@ -75,7 +73,7 @@ uint8_t write_bytes(Stream &strm, char *dest, uint8_t type_length,
   else
     std::reverse_copy(src_start, src_end, dest_start);
   strm.inc(copy_length);
-  return (uint8_t)copy_length;
+  return (T)copy_length;
 }
 
 } // namespace helper

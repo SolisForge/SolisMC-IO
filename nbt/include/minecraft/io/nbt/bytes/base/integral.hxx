@@ -22,18 +22,12 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 // Base implementation
 // ============================================================================
-struct IntWRState {
-  uint8_t processed_char{0};
-
-  inline auto left(uint8_t tlen) const {
-    return static_cast<std::size_t>(tlen - processed_char);
-  }
-};
+using IntRWState = RWState<uint8_t>; // Integral types are 8 bytes long at max
 
 // ============================================================================
 namespace base {
 #define ARGS_IMPL                                                              \
-  Stream &strm, IntWRState &state, const uint8_t tlen, char *value
+  Stream &strm, IntRWState &state, const uint8_t tlen, char *value
 
 /**
  * @brief Parse an integral type
@@ -69,7 +63,7 @@ template <> DumpResult write_integral<std::endian::big>(ARGS_IMPL);
 // ============================================================================
 // Bindings
 // ============================================================================
-#define ARGS(T) Stream &strm, IntWRState &state, T &value
+#define ARGS(T) Stream &strm, IntRWState &state, T &value
 
 // Java implementation
 // ----------------------------------------------------------------------------
@@ -84,7 +78,7 @@ namespace java {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
+template <std::integral T> inline ParseResult read_int(ARGS(T)) {
   return base::read_integral<std::endian::big>(strm, state, sizeof(T),
                                                (char *)(&value));
 }
@@ -98,7 +92,7 @@ template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
  * @param value value object to read
  * @return state of the dumping
  */
-template <std::signed_integral T> inline DumpResult write_int(ARGS(T)) {
+template <std::integral T> inline DumpResult write_int(ARGS(T)) {
   return base::write_integral<std::endian::big>(strm, state, sizeof(T),
                                                 (char *)(&value));
 }
@@ -118,7 +112,7 @@ namespace bedrock {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
+template <std::integral T> inline ParseResult read_int(ARGS(T)) {
   return base::read_integral<std::endian::little>(strm, state, sizeof(T),
                                                   (char *)(&value));
 }
@@ -132,7 +126,7 @@ template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
  * @param value value object to read
  * @return state of the dumping
  */
-template <std::signed_integral T> inline DumpResult write_int(ARGS(T)) {
+template <std::integral T> inline DumpResult write_int(ARGS(T)) {
   return base::write_integral<std::endian::little>(strm, state, sizeof(T),
                                                    (char *)(&value));
 }
@@ -153,7 +147,7 @@ template <std::signed_integral T> inline DumpResult write_int(ARGS(T)) {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::signed_integral T, GameVersion GV = GameVersion::JAVA>
+template <std::integral T, GameVersion GV = GameVersion::JAVA>
 ParseResult read_int(ARGS(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::read_int(ARGS_FWD);
@@ -170,7 +164,7 @@ ParseResult read_int(ARGS(T)) {
  * @param value value object to read
  * @return state of the dumping
  */
-template <std::signed_integral T, GameVersion GV = GameVersion::JAVA>
+template <std::integral T, GameVersion GV = GameVersion::JAVA>
 DumpResult write_int(ARGS(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::write_int(ARGS_FWD);

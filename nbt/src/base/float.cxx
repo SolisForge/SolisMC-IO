@@ -24,19 +24,17 @@ namespace minecraft::nbt::byte::base {
 
 template <std::endian endianess>
 inline ParseResult parse_float_from_bytes(ARGS) {
-  state.processed_char +=
-      helper::read_bytes<endianess>(strm, value, tlen, state.processed_char);
+  state.processed +=
+      helper::read_bytes<endianess>(strm, value, tlen, state.processed);
   ;
-  return (state.processed_char == tlen) ? ParseResult::ENDED
-                                        : ParseResult::UNFINISHED;
+  return (state.left(tlen) == 0) ? ParseResult::ENDED : ParseResult::UNFINISHED;
 }
 
 template <std::endian endianess>
 inline DumpResult write_float_from_bytes(ARGS) {
-  state.processed_char +=
-      helper::write_bytes<endianess>(strm, value, tlen, state.processed_char);
-  return (state.processed_char == tlen) ? DumpResult::ENDED
-                                        : DumpResult::UNFINISHED;
+  state.processed +=
+      helper::write_bytes<endianess>(strm, value, tlen, state.processed);
+  return (state.left(tlen) == 0) ? DumpResult::ENDED : DumpResult::UNFINISHED;
 }
 
 // ============================================================================

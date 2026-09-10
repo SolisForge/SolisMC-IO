@@ -21,13 +21,7 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 // Base implementation
 // ============================================================================
-struct FloatRWState {
-  uint8_t processed_char{0};
-
-  inline auto left(uint8_t tlen) const {
-    return static_cast<std::size_t>(tlen - processed_char);
-  }
-};
+using FloatRWState = RWState<uint8_t>; // Integral types are 8 bytes long at max
 
 // ============================================================================
 

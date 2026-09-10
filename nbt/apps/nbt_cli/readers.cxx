@@ -44,7 +44,7 @@ std::string from_stdin() {
 
   std::cerr << "Reading from stdin" << std::endl;
   (void)!std::freopen(std::nullptr_t{}, "rb", stdin);
-  while (std::cin >> b)
+  while (std::cin >> std::noskipws >> b)
     ss << b;
 
   return ss.str();
