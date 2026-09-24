@@ -64,6 +64,12 @@ struct Stream {
 // ============================================================================
 // Generic parsing/dumping state
 // ============================================================================
+
+/**
+ * @brief Basic read/write item counter
+ *
+ * @tparam T counter of element's type
+ */
 template <std::unsigned_integral T> struct RWState {
   T processed{0};
 

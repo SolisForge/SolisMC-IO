@@ -9,15 +9,16 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
+#include "minecraft/io/nbt/bytes/parser/float.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 #include "processing.hxx"
 #include <concepts>
 #include <cstdlib>
 #include <iostream>
 
-#include "minecraft/io/nbt/bytes/base/float.hxx"
-#include "minecraft/io/nbt/bytes/base/integral.hxx"
 #include "minecraft/io/nbt/bytes/base/string.hxx"
+#include "minecraft/io/nbt/bytes/parser/float.hxx"
+#include "minecraft/io/nbt/bytes/parser/integral.hxx"
 
 using namespace minecraft::nbt::byte;
 
@@ -35,18 +36,16 @@ int display_value(T const &value, ParseResult const &result) {
 
 // ============================================================================
 template <std::signed_integral T> int decode_integral(Stream &strm) {
-  IntRWState state;
-  T value;
-  auto ret = java::read_int<T>(strm, state, value);
-  return display_value(value, ret);
+  IntegralParser<T, minecraft::GameVersion::JAVA> parser;
+  auto ret = parser.parse(strm);
+  return display_value(parser.get(), ret);
 }
 
 // ============================================================================
 template <std::floating_point T> int decode_float(Stream &strm) {
-  FloatRWState state;
-  T value;
-  auto ret = java::read_float<T>(strm, state, value);
-  return display_value(value, ret);
+  FloatParser<T, minecraft::GameVersion::JAVA> parser;
+  auto ret = parser.parse(strm);
+  return display_value(parser.get(), ret);
 }
 
 // ============================================================================
