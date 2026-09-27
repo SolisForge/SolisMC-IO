@@ -31,10 +31,8 @@ int display_value(std::string const &encoded_data,
     for (std::size_t i = 0; i < tlen; i++) {
       std::cout << encoded_data[i];
     }
-    std::flush(std::cout);
-    std::cerr << std::endl;
   } else
-    std::cout << "UNFINISHED" << std::endl;
+    std::cerr << "UNFINISHED" << std::endl;
   return (int)(result);
 }
 

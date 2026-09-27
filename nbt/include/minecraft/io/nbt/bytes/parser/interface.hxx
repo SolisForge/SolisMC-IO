@@ -54,7 +54,7 @@ struct ByteParser {
    *
    * Required for generic types (e.g. List, Compound)
    */
-  virtual std::any any_get() const = 0;
+  virtual std::any any_get() = 0;
 };
 
 // ============================================================================

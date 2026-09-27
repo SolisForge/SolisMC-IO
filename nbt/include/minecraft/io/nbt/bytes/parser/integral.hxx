@@ -46,7 +46,7 @@ struct IntegralParser : public ByteParser {
 
   T get() const { return value_; }
 
-  std::any any_get() const override { return get(); }
+  std::any any_get() override { return get(); }
 
 private:
   IntRWState state_; //< Parsing state

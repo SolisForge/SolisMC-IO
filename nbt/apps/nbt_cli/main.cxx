@@ -13,6 +13,8 @@
 #include "processing.hxx"
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <iostream>
 
 #include "options.hxx"
 #include "readers.hxx"
@@ -24,12 +26,23 @@ int main(int argc, char **argv) {
   // Read input
   auto bytes = (opts.input == ReadFrom::STDIN) ? from_stdin()
                                                : from_file(opts.input_file);
+
+  int exit_code;
   try {
     if (opts.mode == ProcessMode::DECODE)
-      return decode_bytes(bytes, opts.data_type);
+      exit_code = decode_bytes(bytes, opts.data_type);
     else
-      return encode_bytes(bytes, opts.data_type);
+      exit_code = encode_bytes(bytes, opts.data_type);
   } catch (...) {
-    return 1;
+    exit_code = 1;
   }
+
+  // If stdout is not piped, add a line return at the end
+  std::flush(std::cout);
+  std::error_code ec;
+  if (auto status = std::filesystem::status("/dev/stdout", ec);
+      std::filesystem::is_character_file(status)) {
+    std::cerr << std::endl;
+  }
+  return exit_code;
 }
