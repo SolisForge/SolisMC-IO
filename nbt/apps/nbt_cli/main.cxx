@@ -13,6 +13,7 @@
 #include "processing.hxx"
 #include <cstdio>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <iostream>
 
@@ -33,7 +34,8 @@ int main(int argc, char **argv) {
       exit_code = decode_bytes(bytes, opts.data_type);
     else
       exit_code = encode_bytes(bytes, opts.data_type);
-  } catch (...) {
+  } catch (std::exception &e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
     exit_code = 1;
   }
 

@@ -26,7 +26,7 @@ namespace minecraft::nbt::byte {
  */
 struct ArrayRWState {
   // Size
-  IntRWState size_counter{};
+  IntRWState size_state{};
   uint32_t size{0};
 
   // Contents

@@ -39,6 +39,11 @@ template <GameVersion GV> struct StringParser : public ByteParser {
   // Getters
   // ------------------------------------------------------
 
+  bool is_done() const override {
+    return state_.size_state.left(sizeof(uint16_t)) == 0 &&
+           state_.data_state.left(state_.size) == 0;
+  }
+
   std::string get() { return std::move(value_); }
 
   std::any any_get() override { return get(); }

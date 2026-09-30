@@ -63,7 +63,12 @@ struct List {
   /**
    * @brief Return the list tag
    */
-  Tags tag() const { return tag_; }
+  auto tag() const { return tag_; }
+
+  /**
+   * @brief Set the NBT tag of this list
+   */
+  void set_tag(Tags tag) { tag_ = tag; };
 
   /**
    * @brief Append an element to the internal vector
@@ -80,6 +85,11 @@ struct List {
   void reserve(std::size_t const &size) { container_.reserve(size); }
 
   /**
+   * @brief Size of the container
+   */
+  std::size_t size() const { return container_.size(); }
+
+  /**
    * @brief Return the contained data as a std::vector
    *
    * @tparam T the type of the elements of the vector
@@ -88,6 +98,27 @@ struct List {
   template <typename T> std::vector<T> move_cast() {
     return std::move(std::any_cast<std::vector<T>>(container_));
   }
+
+  /**
+   * @brief Return the contained data as a std::vector
+   *
+   * @tparam T the type of the elements of the vector
+   * @return a vector with elements casted in the given type
+   */
+  template <typename T> std::vector<T> copy_cast() const {
+    std::vector<T> out;
+    out.reserve(container_.size());
+    for (auto const &elem : container_)
+      out.push_back(std::any_cast<T>(elem));
+    return out;
+  }
+
+  // ======================================================
+  // Iteration
+  // ======================================================
+  auto begin() const { return container_.begin(); }
+
+  auto end() const { return container_.end(); }
 
 private:
   Tags tag_{};

@@ -33,6 +33,9 @@ Tags parse_type(std::string_view const &qualifier) {
   // String
   else if (qualifier.compare("string") == 0)
     return Tags::STRING;
+  // List
+  else if (qualifier.compare("list") == 0)
+    return Tags::LIST;
 
   return Tags::COMPOUND;
 }

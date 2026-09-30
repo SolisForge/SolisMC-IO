@@ -10,15 +10,20 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/array/list.hxx"
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/tags.hxx"
 
 namespace minecraft::nbt::byte {
 
-#define R_ARGS Stream &strm, ListRWState &state, List &value
-#define W_ARGS Stream &strm, ListRWState &state, List const &value
-#define ARGS_FWD strm, state, value
+#define R_ARGS                                                                 \
+  Stream &strm, ListRWState &state, List &value,                               \
+      ParserToolBoxInterface::SharedPtr &tool_box
+#define W_ARGS                                                                 \
+  [[maybe_unused]] Stream &strm, [[maybe_unused]] ListRWState &state,          \
+      [[maybe_unused]] List const &value,                                      \
+      [[maybe_unused]] ParserToolBoxInterface::SharedPtr &tool_box
+#define ARGS_FWD strm, state, value, tool_box
 
 // ============================================================================
 // Base implementation
@@ -30,23 +35,33 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
   if (!state.is_tag_parsed) {
     if (strm.n == 0)
       return ParseResult::UNFINISHED;
-    state.tag = Tags(strm.data[0]);
+    value.set_tag(from_byte(strm.data[0]));
     strm.inc();
     state.is_tag_parsed = true;
   }
 
   // Parse size
-  if (state.size_counter.left(sizeof(uint8_t)) > 0) {
+  if (state.size_state.left(sizeof(uint16_t)) > 0) {
     if (auto ret = read_integral<endianness>(
-            strm, state.size_counter, sizeof(uint8_t), (char *)(&state.size));
+            strm, state.size_state, sizeof(uint16_t), (char *)(&state.size));
         ret != ParseResult::ENDED)
       return ret;
     value.reserve(state.size);
+
+    // Select parser
+    tool_box->select(std::string{}, value.tag(), true);
   }
 
   // Parse contents
+  auto parser = tool_box->get_parser();
+  while (state.content_state.processed < state.size) {
+    if (auto ret = parser->parse(strm); ret != ParseResult::ENDED)
+      return ret;
+    state.content_state.processed++;
+    value.push_back(parser->any_get());
+  }
 
-  return ParseResult::UNFINISHED;
+  return ParseResult::ENDED;
 }
 
 template <std::endian endianness> DumpResult write_list(W_ARGS) {

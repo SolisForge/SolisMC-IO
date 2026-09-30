@@ -22,7 +22,7 @@ namespace minecraft::nbt::byte {
 template <std::floating_point T, GameVersion GV>
 ParseResult FloatParser<T, GV>::parse(Stream &strm) {
   // Reset state if needed
-  if (state_.left(sizeof(T)) == 0)
+  if (is_done())
     reset();
 
   // Parse value

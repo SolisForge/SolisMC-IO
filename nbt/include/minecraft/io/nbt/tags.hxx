@@ -31,6 +31,34 @@ enum class Tags : uint8_t {
   LONG_ARRAY, // unsigned INT size + size LONG
 };
 
-const char *to_str(Tags const tag);
+// ============================================================================
+
+/**
+ * @brief Return the string representation of the given tag
+ *
+ * @param tag NBT tag
+ * @return string representation
+ */
+constexpr const char *to_str(Tags const tag) {
+  switch (tag) {
+    // Define x macro
+#define X(tag_name, type)                                                      \
+  case Tags::tag_name:                                                         \
+    return #tag_name;
+
+    // Generate all cases
+#include "minecraft/io/nbt/.xmacros/tags.x"
+
+#undef X
+  }
+  return "UNKNOWN";
+}
+
+// ============================================================================
+
+/**
+ * @brief Initialize a byte from its char representation
+ */
+constexpr Tags from_byte(char c) { return static_cast<Tags>(c); }
 
 } // namespace minecraft::nbt

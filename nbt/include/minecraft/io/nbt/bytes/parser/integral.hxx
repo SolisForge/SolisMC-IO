@@ -44,6 +44,8 @@ struct IntegralParser : public ByteParser {
   // Getters
   // ------------------------------------------------------
 
+  bool is_done() const override { return state_.left(sizeof(T)) == 0; }
+
   T get() const { return value_; }
 
   std::any any_get() override { return get(); }

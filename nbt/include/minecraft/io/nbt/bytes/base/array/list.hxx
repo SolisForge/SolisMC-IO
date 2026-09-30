@@ -13,8 +13,8 @@
 
 #include "minecraft/io/nbt/bytes/base/array/interface.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
+#include "minecraft/io/nbt/bytes/tool_box.hxx"
 #include "minecraft/io/nbt/list.hxx"
-#include "minecraft/io/nbt/tags.hxx"
 
 namespace minecraft::nbt::byte {
 
@@ -27,12 +27,15 @@ namespace minecraft::nbt::byte {
  *
  */
 struct ListRWState : ArrayRWState {
-  Tags tag{Tags::END};
   bool is_tag_parsed{false};
 };
 
-#define R_ARGS Stream &strm, ListRWState &state, List &value
-#define W_ARGS Stream &strm, ListRWState &state, List const &value
+#define R_ARGS                                                                 \
+  Stream &strm, ListRWState &state, List &value,                               \
+      ParserToolBoxInterface::SharedPtr &tool_box
+#define W_ARGS                                                                 \
+  Stream &strm, ListRWState &state, List const &value,                         \
+      ParserToolBoxInterface::SharedPtr &tool_box
 
 // ============================================================================
 // Bindings
@@ -92,7 +95,7 @@ DumpResult write_list(W_ARGS);
 
 // General-purpose implementation
 // ----------------------------------------------------------------------------
-#define ARGS_FWD strm, state, value
+#define ARGS_FWD strm, state, value, tool_box
 
 /**
  * @brief Parse a list from the stream

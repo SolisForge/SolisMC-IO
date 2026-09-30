@@ -14,6 +14,7 @@
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 
 #include <any>
+#include <memory>
 
 namespace minecraft::nbt::byte {
 
@@ -26,11 +27,18 @@ namespace minecraft::nbt::byte {
  */
 struct ByteParser {
 
+  using SharedPtr = std::shared_ptr<ByteParser>;
+
   virtual ~ByteParser() = default;
 
   // ------------------------------------------------------
   // Parsing-related methods
   // ------------------------------------------------------
+
+  /**
+   * @brief Has the parser completed its work ?
+   */
+  virtual bool is_done() const = 0;
 
   /**
    * @brief Parse the content of the stream

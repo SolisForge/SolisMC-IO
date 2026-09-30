@@ -22,7 +22,7 @@ namespace minecraft::nbt::byte {
 template <std::integral T, GameVersion GV>
 ParseResult IntegralParser<T, GV>::parse(Stream &strm) {
   // Reset state if needed
-  if (state_.left(sizeof(T)) == 0)
+  if (is_done())
     reset();
 
   // Parse value

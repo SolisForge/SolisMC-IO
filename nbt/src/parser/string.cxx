@@ -16,8 +16,7 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 template <GameVersion GV> ParseResult StringParser<GV>::parse(Stream &strm) {
   // Reset state if needed
-  if (state_.size_state.left(sizeof(uint16_t)) == 0 &&
-      state_.data_state.left(state_.size) == 0)
+  if (is_done())
     reset();
 
   // Parse value
