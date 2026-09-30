@@ -26,16 +26,16 @@ namespace minecraft::nbt::byte {
  * @brief Result of the byte parsing
  */
 enum class ParseResult : uint8_t {
-  UNFINISHED, //< Parsing is not finished yet
-  ENDED       //< Parsing has ended
+  ENDED,     //< Parsing has ended
+  UNFINISHED //< Parsing is not finished yet
 };
 
 /**
  * @brief Result of the byte parsing
  */
 enum class DumpResult : uint8_t {
-  UNFINISHED, //< Dump is not finished yet
-  ENDED       //< Dump has ended
+  ENDED,     //< Dump has ended
+  UNFINISHED //< Dump is not finished yet
 };
 
 // ============================================================================
