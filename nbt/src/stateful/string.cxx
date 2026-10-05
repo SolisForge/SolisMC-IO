@@ -32,9 +32,35 @@ template <GameVersion GV> void StringParser<GV>::reset() {
 }
 
 // ============================================================================
+// Implementation of writer
+// ============================================================================
+template <GameVersion GV> DumpResult StringWriter<GV>::dump(Stream &strm) {
+  using enum DumpResult;
+  // If no value is bound to this writer
+  if (!bound_)
+    return UNBOUND;
+  // Reset state if needed
+  if (is_done())
+    reset();
+  if (auto ret = write_string<GV>(strm, state_, *value_); ret != ENDED)
+    return ret;
+  bound_ = false;
+  return ENDED;
+}
+
+// ============================================================================
+
+template <GameVersion GV> void StringWriter<GV>::reset() {
+  state_.size_state.processed = 0;
+  state_.data_state.processed = 0;
+}
+
+// ============================================================================
 // Export
 // ============================================================================
 template struct StringParser<GameVersion::JAVA>;
 template struct StringParser<GameVersion::BEDROCK>;
+template struct StringWriter<GameVersion::JAVA>;
+template struct StringWriter<GameVersion::BEDROCK>;
 
 } // namespace minecraft::nbt::byte

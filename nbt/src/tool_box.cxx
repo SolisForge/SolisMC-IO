@@ -87,9 +87,9 @@ ByteDumper::SharedPtr DefaultToolBox<GV>::get_default_writer(Tags tag) const {
     return std::make_shared<FloatWriter<float, GV>>();
   case DOUBLE:
     return std::make_shared<FloatWriter<double, GV>>();
-    // // String
-    // case STRING:
-    //   return std::make_shared<StringParser<GV>>();
+  // String
+  case STRING:
+    return std::make_shared<StringWriter<GV>>();
 
   default:
     throw errors::UnsupportedTag(tag);

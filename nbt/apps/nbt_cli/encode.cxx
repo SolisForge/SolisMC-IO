@@ -19,17 +19,19 @@
 #include <iostream>
 #include <ostream>
 
-#include "minecraft/io/nbt/bytes/base/string.hxx"
 #include "minecraft/io/nbt/bytes/stateful/float.hxx"
 #include "minecraft/io/nbt/bytes/stateful/integral.hxx"
+#include "minecraft/io/nbt/bytes/stateful/string.hxx"
+
+using namespace minecraft::nbt::byte;
+using minecraft::GameVersion;
 
 // ============================================================================
 // Helper functions
 // ============================================================================
-int display_value(std::string const &encoded_data,
-                  minecraft::nbt::byte::DumpResult const &result,
+int display_value(std::string const &encoded_data, DumpResult const &result,
                   std::size_t const &tlen) {
-  if (result == minecraft::nbt::byte::DumpResult::ENDED) {
+  if (result == DumpResult::ENDED) {
     for (std::size_t i = 0; i < tlen; i++) {
       std::cout << encoded_data[i];
     }
@@ -43,13 +45,12 @@ template <std::signed_integral T>
 int encode_integral(std::string const &value_str) {
   auto value =
       static_cast<T>(std::strtoll(value_str.c_str(), std::nullptr_t{}, 10));
-  minecraft::nbt::byte::IntegralWriter<T, minecraft::GameVersion::JAVA>
-      writer{};
+  IntegralWriter<T, GameVersion::JAVA> writer{};
 
   // Setup the stream
   std::string out_str;
   out_str.resize(sizeof(T));
-  minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
+  Stream strm{out_str.data(), out_str.size()};
 
   // Dump value
   writer.bind(value);
@@ -61,12 +62,12 @@ int encode_integral(std::string const &value_str) {
 template <std::floating_point T>
 int encode_float(std::string const &value_str) {
   auto value = static_cast<T>(std::strtod(value_str.c_str(), std::nullptr_t{}));
-  minecraft::nbt::byte::FloatWriter<T, minecraft::GameVersion::JAVA> writer{};
+  FloatWriter<T, GameVersion::JAVA> writer{};
 
   // Setup the string
   std::string out_str;
   out_str.resize(sizeof(T));
-  minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
+  Stream strm{out_str.data(), out_str.size()};
 
   // Dump value
   writer.bind(value);
@@ -76,16 +77,17 @@ int encode_float(std::string const &value_str) {
 
 // ============================================================================
 int encode_string(std::string const &value) {
-  minecraft::nbt::byte::StringRWState state{};
+  StringWriter<GameVersion::JAVA> writer{};
 
   // Setup the string
   std::string out_str;
   // Size == string size - 1 to remove white spaces
   out_str.resize(sizeof(uint16_t) + value.size());
-  minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
+  Stream strm{out_str.data(), out_str.size()};
 
   // Dump value
-  auto ret = minecraft::nbt::byte::java::write_string(strm, state, value);
+  writer.bind(value);
+  auto ret = writer.dump(strm);
   return display_value(out_str, ret, out_str.size() - 1);
 }
 

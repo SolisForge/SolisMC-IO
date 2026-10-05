@@ -14,8 +14,14 @@
 #include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/string.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
+#include <cstddef>
+#include <string_view>
 
 namespace minecraft::nbt::byte {
+
+// ============================================================================
+// Parser defintion
+// ============================================================================
 
 /**
  * @brief Stateful parser for integral types
@@ -51,6 +57,64 @@ template <GameVersion GV> struct StringParser : public ByteParser {
 private:
   StringRWState state_; //< Parsing state
   std::string value_;   //< Parsed value
+};
+
+// ============================================================================
+// Writer defintion
+// ============================================================================
+
+/**
+ * @brief Stateful dumper for integral values
+ */
+template <GameVersion GV> struct StringWriter : public ByteDumper {
+
+  /**
+   * @brief Bind a new value to write
+   *
+   * @param value the value to write in the stream
+   */
+  inline void bind(std::any const &v) override {
+    bind(std::any_cast<std::string>(v));
+  }
+
+  /**
+   * @brief Bind a new value to write
+   *
+   * @param value the value to write in the stream
+   */
+  inline void bind(std::string const &v) {
+    value_ = &v;
+    bound_ = true;
+  }
+
+  /**
+   * @brief Has writer parser completed its work ?
+   */
+  inline bool is_done() const override {
+    return state_.size_state.left(sizeof(uint16_t)) == 0 &&
+           value_ != std::nullptr_t{} &&
+           state_.data_state.left(static_cast<uint16_t>(value_->size())) == 0;
+  }
+
+  /**
+   * @brief Dump the value into the stream
+   *
+   * @param strm byte stream to write into
+   * @return result of the dump
+   */
+  DumpResult dump(Stream &strm) override;
+
+  /**
+   * @brief Reset the internal state of the writer
+   */
+  void reset() override;
+
+private:
+  static constexpr std::string_view EMPTY{};
+
+  StringRWState state_{};
+  const std::string *value_ = std::nullptr_t{};
+  bool bound_ = false;
 };
 
 // ============================================================================
