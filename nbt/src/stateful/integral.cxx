@@ -41,14 +41,17 @@ template <std::integral T, GameVersion GV> void IntegralParser<T, GV>::reset() {
 // ============================================================================
 template <std::integral T, GameVersion GV>
 DumpResult IntegralWriter<T, GV>::dump(Stream &strm) {
+  using enum DumpResult;
+  // If no value is bound to this writer
+  if (!bound_)
+    return UNBOUND;
   // Reset state if needed
   if (is_done())
     reset();
-  if (auto ret = write_int<T, GV>(strm, state_, value_);
-      ret != DumpResult::ENDED)
+  if (auto ret = write_int<T, GV>(strm, state_, value_); ret != ENDED)
     return ret;
   bound_ = false;
-  return DumpResult::ENDED;
+  return ENDED;
 }
 
 // ============================================================================

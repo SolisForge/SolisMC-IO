@@ -82,11 +82,11 @@ ByteDumper::SharedPtr DefaultToolBox<GV>::get_default_writer(Tags tag) const {
     return std::make_shared<IntegralWriter<int32_t, GV>>();
   case LONG:
     return std::make_shared<IntegralWriter<int64_t, GV>>();
-    // // Float types
-    // case FLOAT:
-    //   return std::make_shared<FloatParser<float, GV>>();
-    // case DOUBLE:
-    //   return std::make_shared<FloatParser<double, GV>>();
+  // Float types
+  case FLOAT:
+    return std::make_shared<FloatWriter<float, GV>>();
+  case DOUBLE:
+    return std::make_shared<FloatWriter<double, GV>>();
     // // String
     // case STRING:
     //   return std::make_shared<StringParser<GV>>();

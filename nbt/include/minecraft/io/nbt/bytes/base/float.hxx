@@ -26,8 +26,10 @@ using FloatRWState = RWState<uint8_t>; // Integral types are 8 bytes long at max
 // ============================================================================
 
 namespace base {
-#define ARGS_IMPL                                                              \
+#define ARGS_IMPL_READ                                                         \
   Stream &strm, FloatRWState &state, const uint8_t tlen, char *value
+#define ARGS_IMPL_WRITE                                                        \
+  Stream &strm, FloatRWState &state, const uint8_t tlen, const char *value
 
 /**
  * @brief Parse a floating-point type from bytes
@@ -38,7 +40,8 @@ namespace base {
  * @param value pointer to the value to set
  * @return result of the parsing
  */
-template <std::endian data_endianness> ParseResult read_floating(ARGS_IMPL);
+template <std::endian data_endianness>
+ParseResult read_floating(ARGS_IMPL_READ);
 
 /**
  * @brief Dump a floating-point type to bytes
@@ -49,21 +52,24 @@ template <std::endian data_endianness> ParseResult read_floating(ARGS_IMPL);
  * @param value pointer to the value to read
  * @return result of the dump
  */
-template <std::endian data_endianness> DumpResult write_floating(ARGS_IMPL);
+template <std::endian data_endianness>
+DumpResult write_floating(ARGS_IMPL_WRITE);
 
 // Specializations
-template <> ParseResult read_floating<std::endian::little>(ARGS_IMPL);
-template <> ParseResult read_floating<std::endian::big>(ARGS_IMPL);
-template <> DumpResult write_floating<std::endian::little>(ARGS_IMPL);
-template <> DumpResult write_floating<std::endian::big>(ARGS_IMPL);
+template <> ParseResult read_floating<std::endian::little>(ARGS_IMPL_READ);
+template <> ParseResult read_floating<std::endian::big>(ARGS_IMPL_READ);
+template <> DumpResult write_floating<std::endian::little>(ARGS_IMPL_WRITE);
+template <> DumpResult write_floating<std::endian::big>(ARGS_IMPL_WRITE);
 
-#undef ARGS_IMPL
+#undef ARGS_IMPL_READ
+#undef ARGS_IMPL_WRITE
 } // namespace base
 
 // ============================================================================
 // Bindings
 // ============================================================================
-#define ARGS(T) Stream &strm, FloatRWState &state, T &value
+#define ARGS_READ(T) Stream &strm, FloatRWState &state, T &value
+#define ARGS_WRITE(T) Stream &strm, FloatRWState &state, T const &value
 
 // Java implementation
 // ----------------------------------------------------------------------------
@@ -78,7 +84,7 @@ namespace java {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
+template <std::floating_point T> inline ParseResult read_float(ARGS_READ(T)) {
   return base::read_floating<std::endian::big>(strm, state, sizeof(T),
                                                (char *)(&value));
 }
@@ -92,7 +98,7 @@ template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
  * @param value value object to read
  * @return result of the dump
  */
-template <std::floating_point T> inline DumpResult write_float(ARGS(T)) {
+template <std::floating_point T> inline DumpResult write_float(ARGS_WRITE(T)) {
   return base::write_floating<std::endian::big>(strm, state, sizeof(T),
                                                 (char *)(&value));
 }
@@ -112,7 +118,7 @@ namespace bedrock {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
+template <std::floating_point T> inline ParseResult read_float(ARGS_READ(T)) {
   return base::read_floating<std::endian::little>(strm, state, sizeof(T),
                                                   (char *)(&value));
 }
@@ -126,7 +132,7 @@ template <std::floating_point T> inline ParseResult read_float(ARGS(T)) {
  * @param value value object to read
  * @return result of the dump
  */
-template <std::floating_point T> inline DumpResult write_float(ARGS(T)) {
+template <std::floating_point T> inline DumpResult write_float(ARGS_WRITE(T)) {
   return base::write_floating<std::endian::big>(strm, state, sizeof(T),
                                                 (char *)(&value));
 }
@@ -148,7 +154,7 @@ template <std::floating_point T> inline DumpResult write_float(ARGS(T)) {
  * @return result of the parsing
  */
 template <std::floating_point T, GameVersion GV = GameVersion::JAVA>
-ParseResult read_float(ARGS(T)) {
+ParseResult read_float(ARGS_READ(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::read_float(ARGS_FWD);
   return bedrock::read_float(ARGS_FWD);
@@ -166,7 +172,7 @@ ParseResult read_float(ARGS(T)) {
  * @return result of the dump
  */
 template <std::floating_point T, GameVersion GV = GameVersion::JAVA>
-inline DumpResult write_float(ARGS(T)) {
+inline DumpResult write_float(ARGS_WRITE(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::write_float(ARGS_FWD);
   return bedrock::write_float(ARGS_FWD);
@@ -178,17 +184,20 @@ inline DumpResult write_float(ARGS(T)) {
 // Exports
 // ============================================================================
 #define EXPORT(type)                                                           \
-  extern template ParseResult read_float<type, GameVersion::JAVA>(ARGS(type)); \
+  extern template ParseResult read_float<type, GameVersion::JAVA>(             \
+      ARGS_READ(type));                                                        \
   extern template ParseResult read_float<type, GameVersion::BEDROCK>(          \
-      ARGS(type));                                                             \
-  extern template DumpResult write_float<type, GameVersion::JAVA>(ARGS(type)); \
+      ARGS_READ(type));                                                        \
+  extern template DumpResult write_float<type, GameVersion::JAVA>(             \
+      ARGS_WRITE(type));                                                       \
   extern template DumpResult write_float<type, GameVersion::BEDROCK>(          \
-      ARGS(type));
+      ARGS_WRITE(type));
 
 EXPORT(float)
 EXPORT(double)
 
 #undef EXPORT
-#undef ARGS
+#undef ARGS_READ
+#undef ARGS_WRITE
 
 } // namespace minecraft::nbt::byte

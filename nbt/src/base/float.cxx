@@ -19,11 +19,14 @@ namespace minecraft::nbt::byte::base {
 // ============================================================================
 // Implementations
 // ============================================================================
-#define ARGS Stream &strm, FloatRWState &state, const uint8_t tlen, char *value
+#define ARGS_READ                                                              \
+  Stream &strm, FloatRWState &state, const uint8_t tlen, char *value
+#define ARGS_WRITE                                                             \
+  Stream &strm, FloatRWState &state, const uint8_t tlen, const char *value
 #define FWD strm, state, tlen, value
 
 template <std::endian endianess>
-inline ParseResult parse_float_from_bytes(ARGS) {
+inline ParseResult parse_float_from_bytes(ARGS_READ) {
   state.processed +=
       helper::read_bytes<endianess>(strm, value, tlen, state.processed);
   ;
@@ -31,7 +34,7 @@ inline ParseResult parse_float_from_bytes(ARGS) {
 }
 
 template <std::endian endianess>
-inline DumpResult write_float_from_bytes(ARGS) {
+inline DumpResult write_float_from_bytes(ARGS_WRITE) {
   state.processed +=
       helper::write_bytes<endianess>(strm, value, tlen, state.processed);
   return (state.left(tlen) == 0) ? DumpResult::ENDED : DumpResult::UNFINISHED;
@@ -42,10 +45,10 @@ inline DumpResult write_float_from_bytes(ARGS) {
 // ============================================================================
 
 #define BIND(endianess)                                                        \
-  template <> ParseResult read_floating<endianess>(ARGS) {                     \
+  template <> ParseResult read_floating<endianess>(ARGS_READ) {                \
     return parse_float_from_bytes<endianess>(FWD);                             \
   }                                                                            \
-  template <> DumpResult write_floating<endianess>(ARGS) {                     \
+  template <> DumpResult write_floating<endianess>(ARGS_WRITE) {               \
     return write_float_from_bytes<endianess>(FWD);                             \
   }
 
@@ -54,19 +57,22 @@ BIND(std::endian::big)
 
 } // namespace minecraft::nbt::byte::base
 
-#undef ARGS
+#undef ARGS_READ
+#undef ARGS_WRITE
 
 // ============================================================================
 // Export
 // ============================================================================
 namespace minecraft::nbt::byte {
 
-#define ARGS(T) Stream &strm, FloatRWState &state, T &value
+#define ARGS_READ(T) Stream &strm, FloatRWState &state, T &value
+#define ARGS_WRITE(T) Stream &strm, FloatRWState &state, T const &value
 #define EXPORT(type)                                                           \
-  template ParseResult read_float<type, GameVersion::JAVA>(ARGS(type));        \
-  template ParseResult read_float<type, GameVersion::BEDROCK>(ARGS(type));     \
-  template DumpResult write_float<type, GameVersion::JAVA>(ARGS(type));        \
-  template DumpResult write_float<type, GameVersion::BEDROCK>(ARGS(type));
+  template ParseResult read_float<type, GameVersion::JAVA>(ARGS_READ(type));   \
+  template ParseResult read_float<type, GameVersion::BEDROCK>(                 \
+      ARGS_READ(type));                                                        \
+  template DumpResult write_float<type, GameVersion::JAVA>(ARGS_WRITE(type));  \
+  template DumpResult write_float<type, GameVersion::BEDROCK>(ARGS_WRITE(type));
 
 EXPORT(float);
 EXPORT(double);

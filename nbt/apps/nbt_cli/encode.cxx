@@ -19,8 +19,8 @@
 #include <iostream>
 #include <ostream>
 
-#include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/base/string.hxx"
+#include "minecraft/io/nbt/bytes/stateful/float.hxx"
 #include "minecraft/io/nbt/bytes/stateful/integral.hxx"
 
 // ============================================================================
@@ -60,7 +60,8 @@ int encode_integral(std::string const &value_str) {
 // ============================================================================
 template <std::floating_point T>
 int encode_float(std::string const &value_str) {
-  minecraft::nbt::byte::FloatRWState state;
+  auto value = static_cast<T>(std::strtod(value_str.c_str(), std::nullptr_t{}));
+  minecraft::nbt::byte::FloatWriter<T, minecraft::GameVersion::JAVA> writer{};
 
   // Setup the string
   std::string out_str;
@@ -68,8 +69,8 @@ int encode_float(std::string const &value_str) {
   minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
 
   // Dump value
-  auto value = (T)std::strtod(value_str.c_str(), nullptr);
-  auto ret = minecraft::nbt::byte::java::write_float<T>(strm, state, value);
+  writer.bind(value);
+  auto ret = writer.dump(strm);
   return display_value(out_str, ret, out_str.size());
 }
 

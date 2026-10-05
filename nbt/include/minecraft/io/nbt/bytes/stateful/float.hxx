@@ -56,11 +56,64 @@ private:
 };
 
 // ============================================================================
+// Writer defintion
+// ============================================================================
+
+/**
+ * @brief Stateful dumper for float values
+ */
+template <std::floating_point T, GameVersion GV>
+struct FloatWriter : public ByteDumper {
+
+  /**
+   * @brief Bind a new value to write
+   *
+   * @param value the value to write in the stream
+   */
+  inline void bind(std::any const &v) override { bind(std::any_cast<T>(v)); }
+
+  /**
+   * @brief Bind a new value to write
+   *
+   * @param value the value to write in the stream
+   */
+  inline void bind(T const &v) {
+    value_ = v;
+    bound_ = true;
+  }
+
+  /**
+   * @brief Has writer parser completed its work ?
+   */
+  inline bool is_done() const override { return state_.left(sizeof(T)) == 0; }
+
+  /**
+   * @brief Dump the value into the stream
+   *
+   * @param strm byte stream to write into
+   * @return result of the dump
+   */
+  DumpResult dump(Stream &strm) override;
+
+  /**
+   * @brief Reset the internal state of the writer
+   */
+  void reset() override;
+
+private:
+  FloatRWState state_{};
+  T value_{0};
+  bool bound_ = false;
+};
+
+// ============================================================================
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
   extern template struct FloatParser<type, GameVersion::JAVA>;                 \
-  extern template struct FloatParser<type, GameVersion::BEDROCK>;
+  extern template struct FloatParser<type, GameVersion::BEDROCK>;              \
+  extern template struct FloatWriter<type, GameVersion::JAVA>;                 \
+  extern template struct FloatWriter<type, GameVersion::BEDROCK>;
 
 EXPORT(float)
 EXPORT(double)

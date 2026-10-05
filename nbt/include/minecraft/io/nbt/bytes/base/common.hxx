@@ -34,8 +34,9 @@ enum class ParseResult : uint8_t {
  * @brief Result of the byte parsing
  */
 enum class DumpResult : uint8_t {
-  ENDED,     //< Dump has ended
-  UNFINISHED //< Dump is not finished yet
+  ENDED,      //< Dump has ended
+  UNFINISHED, //< Dump is not finished yet
+  UNBOUND     //< Value has not been bound to the parser
 };
 
 // ============================================================================
