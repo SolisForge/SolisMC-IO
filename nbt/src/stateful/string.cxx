@@ -9,7 +9,7 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/io/nbt/bytes/parser/string.hxx"
+#include "minecraft/io/nbt/bytes/stateful/string.hxx"
 
 namespace minecraft::nbt::byte {
 

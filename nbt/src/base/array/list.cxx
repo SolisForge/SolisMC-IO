@@ -16,13 +16,18 @@
 
 namespace minecraft::nbt::byte {
 
+/**
+ * @brief Length in bytes needed for the list size
+ */
+constexpr auto LIST_SIZE_BYTES{sizeof(List::SizeField_t)};
+
 #define R_ARGS                                                                 \
   Stream &strm, ListRWState &state, List &value,                               \
-      ParserToolBoxInterface::SharedPtr &tool_box
+      ToolBoxInterface::SharedPtr &tool_box
 #define W_ARGS                                                                 \
   [[maybe_unused]] Stream &strm, [[maybe_unused]] ListRWState &state,          \
       [[maybe_unused]] List const &value,                                      \
-      [[maybe_unused]] ParserToolBoxInterface::SharedPtr &tool_box
+      [[maybe_unused]] ToolBoxInterface::SharedPtr &tool_box
 #define ARGS_FWD strm, state, value, tool_box
 
 // ============================================================================
@@ -32,18 +37,20 @@ namespace base {
 
 template <std::endian endianness> ParseResult read_list(R_ARGS) {
   // Parse tag
-  if (!state.is_tag_parsed) {
+  // ------------------------------------------------------
+  if (!state.is_tag_processed) {
     if (strm.n == 0)
       return ParseResult::UNFINISHED;
     value.set_tag(from_byte(strm.data[0]));
     strm.inc();
-    state.is_tag_parsed = true;
+    state.is_tag_processed = true;
   }
 
   // Parse size
-  if (state.size_state.left(sizeof(uint16_t)) > 0) {
+  // ------------------------------------------------------
+  if (state.size_state.left(LIST_SIZE_BYTES) > 0) {
     if (auto ret = read_integral<endianness>(
-            strm, state.size_state, sizeof(uint16_t), (char *)(&state.size));
+            strm, state.size_state, LIST_SIZE_BYTES, (char *)(&state.size));
         ret != ParseResult::ENDED)
       return ret;
     value.reserve(state.size);
@@ -53,6 +60,7 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
   }
 
   // Parse contents
+  // ------------------------------------------------------
   auto parser = tool_box->get_parser();
   while (state.content_state.processed < state.size) {
     if (auto ret = parser->parse(strm); ret != ParseResult::ENDED)
@@ -60,12 +68,44 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
     state.content_state.processed++;
     value.push_back(parser->any_get());
   }
-
   return ParseResult::ENDED;
 }
 
 template <std::endian endianness> DumpResult write_list(W_ARGS) {
-  return DumpResult::UNFINISHED;
+  // Dump tag
+  // ------------------------------------------------------
+  if (!state.is_tag_processed) {
+    if (strm.n == 0)
+      return DumpResult::UNFINISHED;
+    strm.data[0] = static_cast<char>(value.tag());
+    strm.inc();
+    state.is_tag_processed = true;
+    state.size = static_cast<List::SizeField_t>(value.size());
+  }
+
+  // Dump size
+  // ------------------------------------------------------
+  if (state.size_state.left(LIST_SIZE_BYTES) > 0) {
+    if (auto ret = write_integral<endianness>(
+            strm, state.size_state, LIST_SIZE_BYTES, (char *)&state.size);
+        ret != DumpResult::ENDED)
+      return ret;
+
+    // Select writer
+    tool_box->select(std::string{}, value.tag(), false);
+  }
+
+  // Dump contents
+  // ------------------------------------------------------
+  auto writer = tool_box->get_writer();
+  while (state.content_state.processed < state.size) {
+    writer->bind(value.get(state.content_state.processed));
+    if (auto ret = writer->dump(strm); ret != DumpResult::ENDED)
+      return ret;
+    state.content_state.processed++;
+  }
+
+  return DumpResult::ENDED;
 }
 
 } // namespace base

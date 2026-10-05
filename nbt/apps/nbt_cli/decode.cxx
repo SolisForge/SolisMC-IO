@@ -19,10 +19,10 @@
 #include <iostream>
 #include <ostream>
 
-#include "minecraft/io/nbt/bytes/parser/array/list.hxx"
-#include "minecraft/io/nbt/bytes/parser/float.hxx"
-#include "minecraft/io/nbt/bytes/parser/integral.hxx"
-#include "minecraft/io/nbt/bytes/parser/string.hxx"
+#include "minecraft/io/nbt/bytes/stateful/array/list.hxx"
+#include "minecraft/io/nbt/bytes/stateful/float.hxx"
+#include "minecraft/io/nbt/bytes/stateful/integral.hxx"
+#include "minecraft/io/nbt/bytes/stateful/string.hxx"
 
 using namespace minecraft::nbt::byte;
 
@@ -119,7 +119,7 @@ int display_value<>(minecraft::nbt::List const &value,
 // ============================================================================
 int decode_list(Stream &strm) {
   auto toolbox =
-      std::make_shared<DefaultParserToolBox<minecraft::GameVersion::JAVA>>();
+      std::make_shared<DefaultToolBox<minecraft::GameVersion::JAVA>>();
   ListParser<minecraft::GameVersion::JAVA> parser{toolbox};
   auto ret = parser.parse(strm);
   return display_value(parser.get(), ret);

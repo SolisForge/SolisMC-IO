@@ -15,7 +15,7 @@
 #pragma once
 
 #include "minecraft/game_info.hxx"
-#include "minecraft/io/nbt/bytes/parser/interface.hxx"
+#include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 #include <cstddef>
 #include <string>
@@ -27,11 +27,11 @@ namespace minecraft::nbt::byte {
 /**
  * @brief Toolbox interface for the NBT byte parsing functions
  */
-struct ParserToolBoxInterface {
+struct ToolBoxInterface {
 
-  using SharedPtr = std::shared_ptr<ParserToolBoxInterface>;
+  using SharedPtr = std::shared_ptr<ToolBoxInterface>;
 
-  virtual ~ParserToolBoxInterface() = default;
+  virtual ~ToolBoxInterface() = default;
 
   /**
    * @brief Select a parser for the corresponding field
@@ -49,10 +49,17 @@ struct ParserToolBoxInterface {
    * @return a unique pointer for the selected parser
    */
   virtual ByteParser::SharedPtr get_parser() = 0;
+
+  /**
+   * @brief Get the writer for the selected field
+   *
+   * @return a point for the selected writer
+   */
+  virtual ByteDumper::SharedPtr get_writer() = 0;
 };
 
 // ============================================================================
-template <GameVersion> struct DefaultParserToolBox : ParserToolBoxInterface {
+template <GameVersion> struct DefaultToolBox : ToolBoxInterface {
 
   /**
    * @brief Select a parser for the corresponding field
@@ -71,26 +78,41 @@ template <GameVersion> struct DefaultParserToolBox : ParserToolBoxInterface {
    */
   ByteParser::SharedPtr get_parser() override;
 
+  /**
+   * @brief Get the writer for the selected field
+   *
+   * @return a point for the selected writer
+   */
+  ByteDumper::SharedPtr get_writer() override;
+
 protected:
   /**
-   * @brief Get the default perser for this type
+   * @brief Get the default parser for this type
    *
    * @return ByteParser::SharedPtr
    */
   ByteParser::SharedPtr get_default_parser(Tags tag) const;
 
+  /**
+   * @brief Get the default writer for this type
+   *
+   * @return ByteParser::SharedPtr
+   */
+  ByteDumper::SharedPtr get_default_writer(Tags tag) const;
+
 private:
   // Generic parser
   ByteParser::SharedPtr parser_ = std::nullptr_t{};
-  Tags parser_tag_ = Tags::END;
+  ByteDumper::SharedPtr writer_ = std::nullptr_t{};
+  Tags selected_tag_ = Tags::END;
 };
 
 // ============================================================================
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
-  extern template struct DefaultParserToolBox<GameVersion::JAVA>;              \
-  extern template struct DefaultParserToolBox<GameVersion::BEDROCK>;
+  extern template struct DefaultToolBox<GameVersion::JAVA>;                    \
+  extern template struct DefaultToolBox<GameVersion::BEDROCK>;
 
 EXPORT(float)
 EXPORT(double)

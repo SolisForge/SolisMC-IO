@@ -26,8 +26,10 @@ using IntRWState = RWState<uint8_t>; // Integral types are 8 bytes long at max
 
 // ============================================================================
 namespace base {
-#define ARGS_IMPL                                                              \
+#define ARGS_READ_IMPL                                                         \
   Stream &strm, IntRWState &state, const uint8_t tlen, char *value
+#define ARGS_WRITE_IMPL                                                        \
+  Stream &strm, IntRWState &state, const uint8_t tlen, const char *value
 
 /**
  * @brief Parse an integral type
@@ -38,7 +40,8 @@ namespace base {
  * @param value pointer to the value to set
  * @return state of the parsing
  */
-template <std::endian data_endianness> ParseResult read_integral(ARGS_IMPL);
+template <std::endian data_endianness>
+ParseResult read_integral(ARGS_READ_IMPL);
 
 /**
  * @brief Dump an integral type
@@ -49,21 +52,24 @@ template <std::endian data_endianness> ParseResult read_integral(ARGS_IMPL);
  * @param value pointer to the value to read
  * @return state of the dump
  */
-template <std::endian data_endianness> DumpResult write_integral(ARGS_IMPL);
+template <std::endian data_endianness>
+DumpResult write_integral(ARGS_WRITE_IMPL);
 
 // Specializations
-template <> ParseResult read_integral<std::endian::little>(ARGS_IMPL);
-template <> ParseResult read_integral<std::endian::big>(ARGS_IMPL);
-template <> DumpResult write_integral<std::endian::little>(ARGS_IMPL);
-template <> DumpResult write_integral<std::endian::big>(ARGS_IMPL);
+template <> ParseResult read_integral<std::endian::little>(ARGS_READ_IMPL);
+template <> ParseResult read_integral<std::endian::big>(ARGS_READ_IMPL);
+template <> DumpResult write_integral<std::endian::little>(ARGS_WRITE_IMPL);
+template <> DumpResult write_integral<std::endian::big>(ARGS_WRITE_IMPL);
 
-#undef ARGS_IMPL
+#undef ARGS_READ_IMPL
+#undef ARGS_WRITE_IMPL
 } // namespace base
 
 // ============================================================================
 // Bindings
 // ============================================================================
-#define ARGS(T) Stream &strm, IntRWState &state, T &value
+#define ARGS_READ(T) Stream &strm, IntRWState &state, T &value
+#define ARGS_WRITE(T) Stream &strm, IntRWState &state, T const &value
 
 // Java implementation
 // ----------------------------------------------------------------------------
@@ -78,7 +84,7 @@ namespace java {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::integral T> inline ParseResult read_int(ARGS(T)) {
+template <std::integral T> inline ParseResult read_int(ARGS_READ(T)) {
   return base::read_integral<std::endian::big>(strm, state, sizeof(T),
                                                (char *)(&value));
 }
@@ -92,7 +98,7 @@ template <std::integral T> inline ParseResult read_int(ARGS(T)) {
  * @param value value object to read
  * @return state of the dumping
  */
-template <std::integral T> inline DumpResult write_int(ARGS(T)) {
+template <std::integral T> inline DumpResult write_int(ARGS_WRITE(T)) {
   return base::write_integral<std::endian::big>(strm, state, sizeof(T),
                                                 (char *)(&value));
 }
@@ -112,7 +118,7 @@ namespace bedrock {
  * @param value value object to fill
  * @return result of the parsing
  */
-template <std::integral T> inline ParseResult read_int(ARGS(T)) {
+template <std::integral T> inline ParseResult read_int(ARGS_READ(T)) {
   return base::read_integral<std::endian::little>(strm, state, sizeof(T),
                                                   (char *)(&value));
 }
@@ -126,7 +132,7 @@ template <std::integral T> inline ParseResult read_int(ARGS(T)) {
  * @param value value object to read
  * @return state of the dumping
  */
-template <std::integral T> inline DumpResult write_int(ARGS(T)) {
+template <std::integral T> inline DumpResult write_int(ARGS_WRITE(T)) {
   return base::write_integral<std::endian::little>(strm, state, sizeof(T),
                                                    (char *)(&value));
 }
@@ -148,7 +154,7 @@ template <std::integral T> inline DumpResult write_int(ARGS(T)) {
  * @return result of the parsing
  */
 template <std::integral T, GameVersion GV = GameVersion::JAVA>
-ParseResult read_int(ARGS(T)) {
+ParseResult read_int(ARGS_READ(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::read_int(ARGS_FWD);
   return bedrock::read_int(ARGS_FWD);
@@ -165,7 +171,7 @@ ParseResult read_int(ARGS(T)) {
  * @return state of the dumping
  */
 template <std::integral T, GameVersion GV = GameVersion::JAVA>
-DumpResult write_int(ARGS(T)) {
+DumpResult write_int(ARGS_WRITE(T)) {
   if constexpr (GV == GameVersion::JAVA)
     return java::write_int(ARGS_FWD);
   return bedrock::write_int(ARGS_FWD);
@@ -177,11 +183,14 @@ DumpResult write_int(ARGS(T)) {
 // Exports
 // ============================================================================
 #define EXPORT(type)                                                           \
-  extern template ParseResult read_int<type, GameVersion::JAVA>(ARGS(type));   \
+  extern template ParseResult read_int<type, GameVersion::JAVA>(               \
+      ARGS_READ(type));                                                        \
   extern template ParseResult read_int<type, GameVersion::BEDROCK>(            \
-      ARGS(type));                                                             \
-  extern template DumpResult write_int<type, GameVersion::JAVA>(ARGS(type));   \
-  extern template DumpResult write_int<type, GameVersion::BEDROCK>(ARGS(type));
+      ARGS_READ(type));                                                        \
+  extern template DumpResult write_int<type, GameVersion::JAVA>(               \
+      ARGS_WRITE(type));                                                       \
+  extern template DumpResult write_int<type, GameVersion::BEDROCK>(            \
+      ARGS_WRITE(type));
 
 EXPORT(int8_t)
 EXPORT(int16_t)
@@ -189,6 +198,7 @@ EXPORT(int32_t)
 EXPORT(int64_t)
 
 #undef EXPORT
-#undef ARGS
+#undef ARGS_READ
+#undef ARGS_WRITE
 
 } // namespace minecraft::nbt::byte

@@ -27,15 +27,15 @@ namespace minecraft::nbt::byte {
  *
  */
 struct ListRWState : ArrayRWState {
-  bool is_tag_parsed{false};
+  bool is_tag_processed{false};
 };
 
 #define R_ARGS                                                                 \
   Stream &strm, ListRWState &state, List &value,                               \
-      ParserToolBoxInterface::SharedPtr &tool_box
+      ToolBoxInterface::SharedPtr &tool_box
 #define W_ARGS                                                                 \
   Stream &strm, ListRWState &state, List const &value,                         \
-      ParserToolBoxInterface::SharedPtr &tool_box
+      ToolBoxInterface::SharedPtr &tool_box
 
 // ============================================================================
 // Bindings

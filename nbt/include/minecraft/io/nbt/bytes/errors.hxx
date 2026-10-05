@@ -44,6 +44,17 @@ struct UninitializedParser : solis::SolisError {
 // ============================================================================
 
 /**
+ * @brief Initialized a parser from a toolbox without selecting it beforehand
+ */
+struct UninitializedWriter : solis::SolisError {
+
+  explicit UninitializedWriter()
+      : solis::SolisError("Writer was not previously initialized") {}
+};
+
+// ============================================================================
+
+/**
  * @brief Calling to a function with an unsupported tag
  */
 struct UnsupportedTag : solis::SolisError {

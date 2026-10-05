@@ -13,7 +13,7 @@
 
 #include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/string.hxx"
-#include "minecraft/io/nbt/bytes/parser/interface.hxx"
+#include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 
 namespace minecraft::nbt::byte {
 

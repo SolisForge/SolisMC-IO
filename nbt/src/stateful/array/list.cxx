@@ -9,14 +9,14 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/io/nbt/bytes/parser/array/list.hxx"
+#include "minecraft/io/nbt/bytes/stateful/array/list.hxx"
 #include "minecraft/io/nbt/bytes/base/array/list.hxx"
 
 namespace minecraft::nbt::byte {
 
 // ============================================================================
 template <GameVersion GV>
-ListParser<GV>::ListParser(ParserToolBoxInterface::SharedPtr toolbox)
+ListParser<GV>::ListParser(ToolBoxInterface::SharedPtr toolbox)
     : ByteParser(), toolbox_(toolbox) {}
 
 // ============================================================================

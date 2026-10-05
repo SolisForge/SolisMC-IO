@@ -73,8 +73,21 @@ struct ByteParser {
  * @brief Interface for a byte parsing object
  */
 struct ByteDumper {
+  using SharedPtr = std::shared_ptr<ByteDumper>;
 
   virtual ~ByteDumper() = default;
+
+  /**
+   * @brief Bind a new value to write
+   *
+   * @param value the value to write in the stream
+   */
+  virtual void bind(std::any const &value) = 0;
+
+  /**
+   * @brief Has writer parser completed its work ?
+   */
+  virtual bool is_done() const = 0;
 
   /**
    * @brief Dump the value into the stream
@@ -83,6 +96,11 @@ struct ByteDumper {
    * @return result of the dump
    */
   virtual DumpResult dump(Stream &strm) = 0;
+
+  /**
+   * @brief Reset the internal state of the parser
+   */
+  virtual void reset() = 0;
 };
 
 } // namespace minecraft::nbt::byte

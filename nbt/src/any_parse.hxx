@@ -11,22 +11,22 @@
 // ============================================================================
 #pragma once
 #include "minecraft/io/nbt/bytes/base/common.hxx"
-#include "minecraft/io/nbt/bytes/parser/interface.hxx"
+#include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 #include <any>
 #include <cstddef>
 
 using minecraft::nbt::Tags;
-using minecraft::nbt::byte::ParserToolBoxInterface;
 using minecraft::nbt::byte::Stream;
+using minecraft::nbt::byte::ToolBoxInterface;
 
 namespace minecraft::nbt::byte {
 
 // ============================================================================
 struct AnyParser : ByteParser {
 
-  explicit AnyParser(ParserToolBoxInterface::SharedPtr toolbox)
+  explicit AnyParser(ToolBoxInterface::SharedPtr toolbox)
       : ByteParser(), toolbox_(toolbox) {}
 
   /**
@@ -53,7 +53,7 @@ struct AnyParser : ByteParser {
   std::any any_get() override;
 
 private:
-  ParserToolBoxInterface::SharedPtr toolbox_;       //< Parser toolbox
+  ToolBoxInterface::SharedPtr toolbox_;             //< Parser toolbox
   ByteParser::SharedPtr parser_ = std::nullptr_t{}; //< Current parser
   Tags tag_ = Tags::END;                            //< Tag of the type to parse
   std::any value_;                                  //< Parsed value

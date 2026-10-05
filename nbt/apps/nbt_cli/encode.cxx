@@ -9,17 +9,19 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
+#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 #include "processing.hxx"
 #include <concepts>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
 
 #include "minecraft/io/nbt/bytes/base/float.hxx"
-#include "minecraft/io/nbt/bytes/base/integral.hxx"
 #include "minecraft/io/nbt/bytes/base/string.hxx"
+#include "minecraft/io/nbt/bytes/stateful/integral.hxx"
 
 // ============================================================================
 // Helper functions
@@ -39,16 +41,19 @@ int display_value(std::string const &encoded_data,
 // ============================================================================
 template <std::signed_integral T>
 int encode_integral(std::string const &value_str) {
-  minecraft::nbt::byte::IntRWState state;
+  auto value =
+      static_cast<T>(std::strtoll(value_str.c_str(), std::nullptr_t{}, 10));
+  minecraft::nbt::byte::IntegralWriter<T, minecraft::GameVersion::JAVA>
+      writer{};
 
-  // Setup the string
+  // Setup the stream
   std::string out_str;
   out_str.resize(sizeof(T));
   minecraft::nbt::byte::Stream strm{out_str.data(), out_str.size()};
 
   // Dump value
-  auto value = (T)std::strtol(value_str.c_str(), nullptr, 10);
-  auto ret = minecraft::nbt::byte::java::write_int<T>(strm, state, value);
+  writer.bind(value);
+  auto ret = writer.dump(strm);
   return display_value(out_str, ret, out_str.size());
 }
 

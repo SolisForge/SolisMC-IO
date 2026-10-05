@@ -12,7 +12,7 @@
 #pragma once
 #include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/array/list.hxx"
-#include "minecraft/io/nbt/bytes/parser/interface.hxx"
+#include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
 
 namespace minecraft::nbt::byte {
@@ -24,7 +24,7 @@ namespace minecraft::nbt::byte {
  */
 template <GameVersion GV> struct ListParser : ByteParser {
 
-  explicit ListParser<GV>(ParserToolBoxInterface::SharedPtr);
+  explicit ListParser<GV>(ToolBoxInterface::SharedPtr);
 
   /**
    * @brief Parse an integral type value from a stream
@@ -50,9 +50,9 @@ template <GameVersion GV> struct ListParser : ByteParser {
   inline std::any any_get() override { return get(); }
 
 private:
-  ParserToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
-  ListRWState state_;                         //< Parsing state
-  List value_;                                //< Parsed value
+  ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
+  ListRWState state_;                   //< Parsing state
+  List value_;                          //< Parsed value
 };
 
 // ============================================================================

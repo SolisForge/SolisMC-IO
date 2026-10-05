@@ -11,7 +11,7 @@
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
-#include "minecraft/io/nbt/bytes/parser/float.hxx"
+#include "minecraft/io/nbt/bytes/stateful/float.hxx"
 
 namespace minecraft::nbt::byte {
 

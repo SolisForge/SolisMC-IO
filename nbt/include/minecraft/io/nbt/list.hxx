@@ -23,6 +23,8 @@ namespace minecraft::nbt {
  */
 struct List {
 
+  using SizeField_t = int32_t;
+
   // ======================================================
   // Initializers
   // ======================================================
@@ -35,7 +37,7 @@ struct List {
   /**
    * @brief Construct a new empty list object
    */
-  explicit List(Tags tag) : tag_(tag) {};
+  explicit List(Tags tag) noexcept : tag_(tag) {};
 
   /**
    * @brief Construct a new List by copying all elements from the given vector.
@@ -44,7 +46,8 @@ struct List {
    * @param vec the vector to build the list from
    */
   template <typename T>
-  List(std::vector<T> vec, Tags tag) : tag_(tag), container_(std::move(vec)) {}
+  List(std::vector<T> vec, Tags tag) noexcept
+      : tag_(tag), container_(std::move(vec)) {}
 
   /**
    * @brief Construct a new List from an existing vector
@@ -53,7 +56,7 @@ struct List {
    * @param vec the vector to use the data from
    */
   template <typename T>
-  List(std::vector<T> &&vec, Tags tag)
+  List(std::vector<T> &&vec, Tags tag) noexcept
       : tag_(tag), container_(std::move(vec)) {}
 
   // ======================================================
@@ -63,31 +66,38 @@ struct List {
   /**
    * @brief Return the list tag
    */
-  auto tag() const { return tag_; }
+  inline auto tag() const noexcept { return tag_; }
 
   /**
    * @brief Set the NBT tag of this list
    */
-  void set_tag(Tags tag) { tag_ = tag; };
+  inline void set_tag(Tags tag) noexcept { tag_ = tag; };
+
+  /**
+   * @brief Get the element
+   */
+  inline auto get(std::size_t i) const { return container_[i]; }
 
   /**
    * @brief Append an element to the internal vector
    *
    * @param element the element to add
    */
-  void push_back(std::any const &element) { container_.push_back(element); }
+  inline void push_back(std::any const &element) {
+    container_.push_back(element);
+  }
 
   /**
    * @brief Reserve a new size for the vector
    *
    * @param size
    */
-  void reserve(std::size_t const &size) { container_.reserve(size); }
+  inline void reserve(std::size_t const &size) { container_.reserve(size); }
 
   /**
    * @brief Size of the container
    */
-  std::size_t size() const { return container_.size(); }
+  inline std::size_t size() const { return container_.size(); }
 
   /**
    * @brief Return the contained data as a std::vector
@@ -116,9 +126,9 @@ struct List {
   // ======================================================
   // Iteration
   // ======================================================
-  auto begin() const { return container_.begin(); }
+  inline auto begin() const { return container_.begin(); }
 
-  auto end() const { return container_.end(); }
+  inline auto end() const { return container_.end(); }
 
 private:
   Tags tag_{};
