@@ -59,8 +59,9 @@ struct UninitializedWriter : solis::SolisError {
  */
 struct UnsupportedTag : solis::SolisError {
 
-  explicit UnsupportedTag(Tags tag)
-      : solis::SolisError(std::format("Unsupported tag {:s}", to_str(tag))) {}
+  explicit UnsupportedTag(Tags tag, std::string_view function)
+      : solis::SolisError(std::format("Unsupported tag {:s} in function {:s}",
+                                      to_str(tag), function)) {}
 };
 
 } // namespace minecraft::nbt::byte::errors

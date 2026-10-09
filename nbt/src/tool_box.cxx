@@ -13,6 +13,7 @@
 #include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/errors.hxx"
 
+#include "minecraft/io/nbt/bytes/stateful/array/list.hxx"
 #include "minecraft/io/nbt/bytes/stateful/float.hxx"
 #include "minecraft/io/nbt/bytes/stateful/integral.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
@@ -62,9 +63,13 @@ ByteParser::SharedPtr DefaultToolBox<GV>::get_default_parser(Tags tag) const {
   // String
   case STRING:
     return std::make_shared<StringParser<GV>>();
+  // Any type
+  case LIST:
+    return std::make_shared<ListParser<GV>>(
+        std::make_shared<DefaultToolBox<GV>>());
 
   default:
-    throw errors::UnsupportedTag(tag);
+    throw errors::UnsupportedTag(tag, "libnbt::get_default_parser");
   }
 }
 
@@ -90,9 +95,13 @@ ByteDumper::SharedPtr DefaultToolBox<GV>::get_default_writer(Tags tag) const {
   // String
   case STRING:
     return std::make_shared<StringWriter<GV>>();
+  // Any type
+  case LIST:
+    return std::make_shared<ListWriter<GV>>(
+        std::make_shared<DefaultToolBox<GV>>());
 
   default:
-    throw errors::UnsupportedTag(tag);
+    throw errors::UnsupportedTag(tag, "libnbt::get_default_writer");
   }
 }
 

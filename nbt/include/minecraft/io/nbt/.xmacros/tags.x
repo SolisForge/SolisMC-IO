@@ -1,15 +1,5 @@
 #ifdef X
-X(END, void)
-X(BYTE, int8_t)
-X(SHORT, int16_t)
-X(INT, int32_t)
-X(LONG, int64_t)
-X(FLOAT, float)
-X(DOUBLE, double)
-X(BYTE_ARRAY, std::vector<int8_t>)
-X(STRING, std::string)
-X(LIST, List)
-X(COMPOUND, Compound)
-X(INT_ARRAY, std::vector<int32_t>)
-X(LONG_ARRAY, std::vector<int64_t>)
+#include "restricted_tags.x"
+X(END, int)
+X(COMPOUND, int)
 #endif

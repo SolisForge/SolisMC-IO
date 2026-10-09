@@ -14,7 +14,7 @@
 #include "minecraft/io/nbt/tags.hxx"
 #include <filesystem>
 
-using minecraft::nbt::Tags;
+namespace minecraft::nbt::app {
 
 // ============================================================================
 // Helper structs
@@ -45,3 +45,5 @@ struct Options {
  * @return constructed options structure
  */
 Options parse_args(int argc, char **argv);
+
+} // namespace minecraft::nbt::app

@@ -20,20 +20,24 @@
 #include "options.hxx"
 #include "readers.hxx"
 
+namespace app = minecraft::nbt::app;
+
 // ============================================================================
 int main(int argc, char **argv) {
-  auto opts = parse_args(argc, argv);
+  auto opts = app::parse_args(argc, argv);
 
   // Read input
-  auto bytes = (opts.input == ReadFrom::STDIN) ? from_stdin()
-                                               : from_file(opts.input_file);
+  auto bytes = (opts.input == app::ReadFrom::STDIN)
+                   ? from_stdin()
+                   : from_file(opts.input_file);
 
   int exit_code;
   try {
-    if (opts.mode == ProcessMode::DECODE)
-      exit_code = decode_bytes(bytes, opts.data_type);
-    else
-      exit_code = encode_bytes(bytes, opts.data_type);
+    if (opts.mode == app::ProcessMode::DECODE) {
+      exit_code = app::decode_bytes(bytes, opts.data_type);
+    } else {
+      exit_code = app::encode_bytes(bytes, opts.data_type);
+    }
   } catch (std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     exit_code = 1;

@@ -18,6 +18,7 @@
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 #include <cstddef>
+#include <memory>
 #include <string>
 
 namespace minecraft::nbt::byte {

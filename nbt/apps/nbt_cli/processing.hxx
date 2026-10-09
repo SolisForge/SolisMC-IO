@@ -17,6 +17,8 @@
 
 using minecraft::nbt::Tags;
 
+namespace minecraft::nbt::app {
+
 // ============================================================================
 struct DecodingNotImplemented : public solis::SolisError {
 
@@ -37,3 +39,5 @@ int decode_bytes(std::string &bytes, Tags const tag);
 
 // ============================================================================
 int encode_bytes(std::string const &value, Tags const tag);
+
+} // namespace minecraft::nbt::app
