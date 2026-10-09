@@ -10,11 +10,11 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "options.hxx"
+#include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <stdexcept>
-
-#include "objects/tags.hxx"
+#include <string_view>
 
 namespace minecraft::nbt::app {
 
@@ -28,11 +28,12 @@ Options parse_args(int argc, char **argv) {
 
   // Parse all arguments
   while (argc > 0) {
-    if (auto len = std::strlen(argv[0]); len < 2)
+    std::string arg0{argv[0]};
+    if (auto len = arg0.length(); len < 2)
       throw std::invalid_argument{"Argument should have a length of 2"};
 
     // File option
-    if (std::strncmp(argv[0], "-f", 2) == 0) {
+    if (arg0.compare("-f") == 0) {
       if (argc == 1)
         throw std::invalid_argument{"Missing path to -f"};
       opt.input = ReadFrom::FILE;
@@ -41,15 +42,20 @@ Options parse_args(int argc, char **argv) {
       argv += 2;
     }
     // Type option
-    else if (std::strncmp(argv[0], "-t", 2) == 0) {
+    else if (arg0.compare("-t") == 0) {
       if (argc == 1)
         throw std::invalid_argument{"Missing type info to -t"};
-      opt.data_type = from_string(argv[1]);
+
+      std::string upper{};
+      std::ranges::transform(std::string_view{argv[1]},
+                             std::back_inserter(upper),
+                             [](unsigned char c) { return std::toupper(c); });
+      opt.data_type = from_string(upper);
       argc -= 2;
       argv += 2;
     }
     // Encode option
-    else if (std::strncmp(argv[0], "-e", 2) == 0) {
+    else if (arg0.compare("-e") == 0) {
       opt.mode = ProcessMode::ENCODE;
       argc -= 1;
       argv += 1;

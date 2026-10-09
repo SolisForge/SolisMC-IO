@@ -11,47 +11,19 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/io/nbt/bytes/errors.hxx"
-
-#include "../format.hxx"
-#include "list.hxx"
-#include "tags.hxx"
 #include <ranges>
 #include <sstream>
 #include <string_view>
 #include <vector>
 
-#include <iostream>
+#include "minecraft/io/nbt/bytes/errors.hxx"
+#include "minecraft/io/nbt/tags.hxx"
+
+#include "../format.hxx"
+#include "list.hxx"
+#include "parse_any.hxx"
 
 namespace minecraft::nbt::app {
-
-// ============================================================================
-// Content parsing
-// ============================================================================
-std::any parse_from_tag(std::string_view str, Tags tag) {
-  using enum Tags;
-
-  switch (tag) {
-    // Integral types
-  case BYTE:
-    return (int8_t)std::strtol(str.data(), nullptr, 16);
-  case SHORT:
-    return (int16_t)std::strtol(str.data(), nullptr, 10);
-  case INT:
-    return (int32_t)std::strtol(str.data(), nullptr, 10);
-  case LONG:
-    return std::strtol(str.data(), nullptr, 10);
-  // Floating point type
-  case FLOAT:
-    return (float)std::strtod(str.data(), nullptr);
-  case DOUBLE:
-    return std::strtod(str.data(), nullptr);
-
-  // Default: raise an exception
-  default:
-    throw byte::errors::UnsupportedTag(tag, "app::parse_from_tag");
-  }
-}
 
 // ============================================================================
 // List import
@@ -90,8 +62,11 @@ void display_vector(std::vector<T> const &value, std::stringstream &ss) {
   // Display values
   std::size_t i{0};
   ss << "[";
-  for (auto const &item : value)
-    ss << fmt_value(item) << ((i++ < value.size() - 1) ? "," : "");
+  for (auto const &item : value) {
+    fmt_value<T>(ss, item);
+    if (i++ < value.size() - 1)
+      ss << ",";
+  }
   ss << "]";
 }
 
@@ -113,18 +88,15 @@ void display_vector(std::vector<std::vector<T>> const &value,
 std::string list_export(const List &list) {
   using enum Tags;
   std::stringstream ss{};
-  ss << to_string(list.tag());
+  ss << to_str(list.tag());
 
   // Export list as "type[contents,...]"
   switch (list.tag()) {
-#define X(tag, type)                                                           \
+#define X(tag)                                                                 \
   case tag:                                                                    \
-    display_vector(list.copy_cast<type>(), ss);                                \
+    display_vector(list.copy_cast<get_type<tag>>(), ss);                       \
     break;
-
-#include "minecraft/io/nbt/.xmacros/restricted_tags.x"
-
-#undef X
+#include "minecraft/io/nbt/.xmacros/tags.x"
 
   // Default: raise an exception
   default:

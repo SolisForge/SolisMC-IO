@@ -37,7 +37,7 @@ using Stream = byte::Stream;
 template <typename T>
 int display_value(T const &value, ParseResult const &result) {
   if (result == ParseResult::ENDED)
-    std::cout << fmt_value<T>(value);
+    fmt_value(std::cout, value);
   else
     std::cerr << "UNFINISHED" << std::endl;
   return (int)(result);

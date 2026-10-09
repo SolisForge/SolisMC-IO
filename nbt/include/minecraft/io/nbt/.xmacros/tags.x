@@ -1,5 +1,15 @@
 #ifdef X
-#include "restricted_tags.x"
-X(END, int)
-X(COMPOUND, int)
+X(BYTE)
+X(SHORT)
+X(INT)
+X(LONG)
+X(FLOAT)
+X(DOUBLE)
+X(BYTE_ARRAY)
+X(STRING)
+X(LIST)
+X(COMPOUND)
+X(INT_ARRAY)
+X(LONG_ARRAY)
 #endif
+#undef X
