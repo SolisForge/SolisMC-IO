@@ -4,7 +4,7 @@
 // Common resources for byte IO
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      10/08/2026 (created 10/08/2026)
+// Date      13/10/2026 (created 10/08/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -77,6 +77,8 @@ template <std::unsigned_integral T> struct RWState {
   inline auto left(T size) const {
     return static_cast<std::size_t>(size - processed);
   }
+
+  void reset() { processed = 0; }
 };
 
 } // namespace minecraft::nbt::byte

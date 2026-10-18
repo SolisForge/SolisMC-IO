@@ -4,13 +4,12 @@
 // Stateful parser for integral types implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      24/09/2026 (created 24/09/2026)
+// Date      13/10/2026 (created 24/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/stateful/integral.hxx"
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
 
@@ -21,7 +20,7 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 
 template <std::integral T, GameVersion GV>
-ParseResult IntegralParser<T, GV>::parse(Stream &strm) {
+ParseResult Parser<T, GV>::parse(Stream &strm) {
   // Reset state if needed
   if (is_done())
     reset();
@@ -31,7 +30,7 @@ ParseResult IntegralParser<T, GV>::parse(Stream &strm) {
 
 // ============================================================================
 
-template <std::integral T, GameVersion GV> void IntegralParser<T, GV>::reset() {
+template <std::integral T, GameVersion GV> void Parser<T, GV>::reset() {
   state_.processed = 0;
   value_ = 0.0;
 }
@@ -40,7 +39,7 @@ template <std::integral T, GameVersion GV> void IntegralParser<T, GV>::reset() {
 // Implementation of writer
 // ============================================================================
 template <std::integral T, GameVersion GV>
-DumpResult IntegralWriter<T, GV>::dump(Stream &strm) {
+DumpResult Writer<T, GV>::dump(Stream &strm) {
   using enum DumpResult;
   // If no value is bound to this writer
   if (!bound_)
@@ -56,7 +55,7 @@ DumpResult IntegralWriter<T, GV>::dump(Stream &strm) {
 
 // ============================================================================
 
-template <std::integral T, GameVersion GV> void IntegralWriter<T, GV>::reset() {
+template <std::integral T, GameVersion GV> void Writer<T, GV>::reset() {
   state_.processed = 0;
 }
 
@@ -64,10 +63,10 @@ template <std::integral T, GameVersion GV> void IntegralWriter<T, GV>::reset() {
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
-  template struct IntegralParser<type, GameVersion::JAVA>;                     \
-  template struct IntegralParser<type, GameVersion::BEDROCK>;                  \
-  template struct IntegralWriter<type, GameVersion::JAVA>;                     \
-  template struct IntegralWriter<type, GameVersion::BEDROCK>;
+  template struct Parser<type, GameVersion::JAVA>;                             \
+  template struct Parser<type, GameVersion::BEDROCK>;                          \
+  template struct Writer<type, GameVersion::JAVA>;                             \
+  template struct Writer<type, GameVersion::BEDROCK>;
 
 EXPORT(int8_t)
 EXPORT(int16_t)

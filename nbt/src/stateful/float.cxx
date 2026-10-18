@@ -4,7 +4,7 @@
 // Stateful parser for floating point types implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      24/09/2026 (created 24/09/2026)
+// Date      10/10/2026 (created 24/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -20,7 +20,7 @@ namespace minecraft::nbt::byte {
 // ============================================================================
 
 template <std::floating_point T, GameVersion GV>
-ParseResult FloatParser<T, GV>::parse(Stream &strm) {
+ParseResult Parser<T, GV>::parse(Stream &strm) {
   // Reset state if needed
   if (is_done())
     reset();
@@ -31,8 +31,7 @@ ParseResult FloatParser<T, GV>::parse(Stream &strm) {
 
 // ============================================================================
 
-template <std::floating_point T, GameVersion GV>
-void FloatParser<T, GV>::reset() {
+template <std::floating_point T, GameVersion GV> void Parser<T, GV>::reset() {
   state_.processed = 0;
   value_ = 0;
 }
@@ -41,7 +40,7 @@ void FloatParser<T, GV>::reset() {
 // Implementation of writer
 // ============================================================================
 template <std::floating_point T, GameVersion GV>
-DumpResult FloatWriter<T, GV>::dump(Stream &strm) {
+DumpResult Writer<T, GV>::dump(Stream &strm) {
   using enum DumpResult;
   // If no value is bound to this writer
   if (!bound_)
@@ -57,8 +56,7 @@ DumpResult FloatWriter<T, GV>::dump(Stream &strm) {
 
 // ============================================================================
 
-template <std::floating_point T, GameVersion GV>
-void FloatWriter<T, GV>::reset() {
+template <std::floating_point T, GameVersion GV> void Writer<T, GV>::reset() {
   state_.processed = 0;
 }
 
@@ -66,10 +64,10 @@ void FloatWriter<T, GV>::reset() {
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
-  template struct FloatParser<type, GameVersion::JAVA>;                        \
-  template struct FloatParser<type, GameVersion::BEDROCK>;                     \
-  template struct FloatWriter<type, GameVersion::JAVA>;                        \
-  template struct FloatWriter<type, GameVersion::BEDROCK>;
+  template struct Parser<type, GameVersion::JAVA>;                             \
+  template struct Parser<type, GameVersion::BEDROCK>;                          \
+  template struct Writer<type, GameVersion::JAVA>;                             \
+  template struct Writer<type, GameVersion::BEDROCK>;
 
 EXPORT(float)
 EXPORT(double)

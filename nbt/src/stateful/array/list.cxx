@@ -4,7 +4,7 @@
 // Stateful parser for NBT::List std::vector<std::any>) types
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      28/09/2026 (created 28/09/2026)
+// Date      13/10/2026 (created 28/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -19,23 +19,23 @@ namespace minecraft::nbt::byte {
 // Parser implementation
 // ============================================================================
 template <GameVersion GV>
-ListParser<GV>::ListParser(ToolBoxInterface::SharedPtr toolbox)
+Parser<List, GV>::Parser(ToolBoxInterface::SharedPtr toolbox)
     : ByteParser(), toolbox_(toolbox) {}
 
 // ============================================================================
-template <GameVersion GV> bool ListParser<GV>::is_done() const {
+template <GameVersion GV> bool Parser<List, GV>::is_done() const {
   return state_.size_state.left(sizeof(uint32_t)) &&
          state_.content_state.left(state_.size) == 0;
 }
 
 // ============================================================================
-template <GameVersion GV> void ListParser<GV>::reset() {
-  state_ = ListRWState{};
+template <GameVersion GV> void Parser<List, GV>::reset() {
+  state_.reset();
   value_.reserve(0);
 }
 
 // ============================================================================
-template <GameVersion GV> ParseResult ListParser<GV>::parse(Stream &strm) {
+template <GameVersion GV> ParseResult Parser<List, GV>::parse(Stream &strm) {
   if (is_done())
     reset();
   return read_list<GV>(strm, state_, value_, toolbox_);
@@ -45,11 +45,11 @@ template <GameVersion GV> ParseResult ListParser<GV>::parse(Stream &strm) {
 // Writer implementation
 // ============================================================================
 template <GameVersion GV>
-ListWriter<GV>::ListWriter(ToolBoxInterface::SharedPtr toolbox)
-    : ByteDumper(), toolbox_(toolbox) {}
+Writer<List, GV>::Writer(ToolBoxInterface::SharedPtr toolbox)
+    : ByteWriter(), toolbox_(toolbox) {}
 
 // ============================================================================
-template <GameVersion GV> bool ListWriter<GV>::is_done() const {
+template <GameVersion GV> bool Writer<List, GV>::is_done() const {
   return state_.is_tag_processed &&
          state_.size_state.left(sizeof(List::SizeField_t)) == 0 &&
          value_ != std::nullptr_t{} &&
@@ -58,12 +58,13 @@ template <GameVersion GV> bool ListWriter<GV>::is_done() const {
 }
 
 // ============================================================================
-template <GameVersion GV> void ListWriter<GV>::reset() {
-  state_ = ListRWState{};
+template <GameVersion GV> void Writer<List, GV>::reset() {
+  state_.reset();
+  bound_ = false;
 }
 
 // ============================================================================
-template <GameVersion GV> DumpResult ListWriter<GV>::dump(Stream &strm) {
+template <GameVersion GV> DumpResult Writer<List, GV>::dump(Stream &strm) {
   if (is_done())
     reset();
   return write_list<GV>(strm, state_, *value_, toolbox_);
@@ -72,9 +73,9 @@ template <GameVersion GV> DumpResult ListWriter<GV>::dump(Stream &strm) {
 // ============================================================================
 // Export
 // ============================================================================
-template struct ListParser<GameVersion::JAVA>;
-template struct ListParser<GameVersion::BEDROCK>;
-template struct ListWriter<GameVersion::JAVA>;
-template struct ListWriter<GameVersion::BEDROCK>;
+template struct Parser<List, GameVersion::JAVA>;
+template struct Parser<List, GameVersion::BEDROCK>;
+template struct Writer<List, GameVersion::JAVA>;
+template struct Writer<List, GameVersion::BEDROCK>;
 
 } // namespace minecraft::nbt::byte

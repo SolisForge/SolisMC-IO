@@ -7,19 +7,17 @@
 // depends on a Tags byte representation at runtime.
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      28/09/2026 (created 28/09/2026)
+// Date      13/10/2026 (created 28/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
-#include "minecraft/io/nbt/tags.hxx"
-#include <cstddef>
+#include "minecraft/io/nbt/nbt.hxx" // IWYU pragma: keep
 #include <memory>
-#include <string>
+#include <string_view>
 
 namespace minecraft::nbt::byte {
 
@@ -42,7 +40,11 @@ struct ToolBoxInterface {
    * @param to_parse set to true if we are going to fetch a parser for this
    * field
    */
-  virtual bool select(std::string const &name, Tags tag, bool to_parse) = 0;
+  virtual bool select(std::string_view name, Tags tag, bool to_parse) = 0;
+
+  virtual bool select(Tags tag, bool to_parse) {
+    return select(std::string_view{}, tag, to_parse);
+  }
 
   /**
    * @brief Get the parser for the selected field
@@ -56,7 +58,21 @@ struct ToolBoxInterface {
    *
    * @return a point for the selected writer
    */
-  virtual ByteDumper::SharedPtr get_writer() = 0;
+  virtual ByteWriter::SharedPtr get_writer() = 0;
+
+  // ------------------------------------------------------
+  // Easy select
+  // ------------------------------------------------------
+
+  template <typename T> inline ByteParser::SharedPtr get_parser_for() {
+    select(get_tag<T>(), true);
+    return get_parser();
+  }
+
+  template <typename T> inline ByteWriter::SharedPtr get_writer_for() {
+    select(get_tag<T>(), false);
+    return get_writer();
+  }
 };
 
 // ============================================================================
@@ -70,7 +86,18 @@ template <GameVersion> struct DefaultToolBox : ToolBoxInterface {
    * @param to_parse set to true if we are going to fetch a parser for this
    * field
    */
-  bool select(std::string const &name, Tags tag, bool to_parse) override;
+  bool select(std::string_view name, Tags tag, bool to_parse) override;
+
+  /**
+   * @brief Select a parser for the corresponding field
+   *
+   * @param tag NBT tag for this type
+   * @param to_parse set to true if we are going to fetch a parser for this
+   * field
+   */
+  bool select(Tags tag, bool to_parser) final {
+    return select(std::string_view{}, tag, to_parser);
+  }
 
   /**
    * @brief Get the parser for the selected field
@@ -84,7 +111,7 @@ template <GameVersion> struct DefaultToolBox : ToolBoxInterface {
    *
    * @return a point for the selected writer
    */
-  ByteDumper::SharedPtr get_writer() override;
+  ByteWriter::SharedPtr get_writer() override;
 
 protected:
   /**
@@ -99,14 +126,25 @@ protected:
    *
    * @return ByteParser::SharedPtr
    */
-  ByteDumper::SharedPtr get_default_writer(Tags tag) const;
+  ByteWriter::SharedPtr get_default_writer(Tags tag) const;
 
 private:
   // Generic parser
   ByteParser::SharedPtr parser_ = std::nullptr_t{};
-  ByteDumper::SharedPtr writer_ = std::nullptr_t{};
+  ByteWriter::SharedPtr writer_ = std::nullptr_t{};
   Tags selected_tag_ = Tags::END;
 };
+
+// ============================================================================
+// Concepts
+// ============================================================================
+template <typename T>
+concept ParserWithToolbox =
+    ParserImpl<T> && requires(ToolBoxInterface::SharedPtr p) { T(p); };
+
+template <typename T>
+concept WriterWithToolbox =
+    WriterImpl<T> && requires(ToolBoxInterface::SharedPtr p) { T(p); };
 
 // ============================================================================
 // Export

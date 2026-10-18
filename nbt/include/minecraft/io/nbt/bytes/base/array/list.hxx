@@ -4,7 +4,7 @@
 // NBT List (std::vector<std::any>) structure parsing definition
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      14/09/2026 (created 14/09/2026)
+// Date      13/10/2026 (created 14/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -14,27 +14,18 @@
 #include "minecraft/io/nbt/bytes/base/array/interface.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
-#include "minecraft/io/nbt/list.hxx"
+#include "minecraft/io/nbt/objects/list.hxx"
 
 namespace minecraft::nbt::byte {
 
 // ============================================================================
 // Common resources
 // ============================================================================
-
-/**
- * @brief State implementation for NBT lists
- *
- */
-struct ListRWState : ArrayRWState {
-  bool is_tag_processed{false};
-};
-
 #define R_ARGS                                                                 \
-  Stream &strm, ListRWState &state, List &value,                               \
+  Stream &strm, ArrayRWState &state, List &value,                              \
       ToolBoxInterface::SharedPtr &tool_box
 #define W_ARGS                                                                 \
-  Stream &strm, ListRWState &state, List const &value,                         \
+  Stream &strm, ArrayRWState &state, List const &value,                        \
       ToolBoxInterface::SharedPtr &tool_box
 
 // ============================================================================

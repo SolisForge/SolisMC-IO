@@ -8,15 +8,15 @@
 //     - char[] data (not null terminated)
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      10/09/2026 (created 10/09/2026)
+// Date      13/10/2026 (created 10/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/game_info.hxx"
 #include <string>
 
 namespace minecraft::nbt::byte {
@@ -28,6 +28,12 @@ struct StringRWState {
   IntRWState size_state;        //< State for the size processing
   RWState<uint16_t> data_state; //< State for the content processing
   uint16_t size{0};             //< Size of the string value
+
+  void reset() {
+    size_state.reset();
+    data_state.reset();
+    size = 0;
+  }
 };
 
 // ============================================================================

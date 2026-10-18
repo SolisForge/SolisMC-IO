@@ -4,17 +4,14 @@
 // Error collection for the NBT byte parsing utilities
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      28/09/2026 (created 28/09/2026)
+// Date      10/10/2026 (created 28/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include <format>
-#include <solis/utils/errors.hpp>
-
-#include "minecraft/io/nbt/tags.hxx"
+#include "minecraft/io/nbt/errors.hxx"
 
 namespace minecraft::nbt::byte::errors {
 
@@ -50,18 +47,6 @@ struct UninitializedWriter : solis::SolisError {
 
   explicit UninitializedWriter()
       : solis::SolisError("Writer was not previously initialized") {}
-};
-
-// ============================================================================
-
-/**
- * @brief Calling to a function with an unsupported tag
- */
-struct UnsupportedTag : solis::SolisError {
-
-  explicit UnsupportedTag(Tags tag, std::string_view function)
-      : solis::SolisError(std::format("Unsupported tag {:s} in function {:s}",
-                                      to_str(tag), function)) {}
 };
 
 } // namespace minecraft::nbt::byte::errors

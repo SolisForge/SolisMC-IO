@@ -4,7 +4,7 @@
 // NBT List (std::vector<std::any>) structure parsing implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      14/09/2026 (created 14/09/2026)
+// Date      13/10/2026 (created 30/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -22,12 +22,11 @@ namespace minecraft::nbt::byte {
 constexpr auto LIST_SIZE_BYTES{sizeof(List::SizeField_t)};
 
 #define R_ARGS                                                                 \
-  Stream &strm, ListRWState &state, List &value,                               \
+  Stream &strm, ArrayRWState &state, List &value,                              \
       ToolBoxInterface::SharedPtr &tool_box
 #define W_ARGS                                                                 \
-  [[maybe_unused]] Stream &strm, [[maybe_unused]] ListRWState &state,          \
-      [[maybe_unused]] List const &value,                                      \
-      [[maybe_unused]] ToolBoxInterface::SharedPtr &tool_box
+  Stream &strm, ArrayRWState &state, List const &value,                        \
+      ToolBoxInterface::SharedPtr &tool_box
 #define ARGS_FWD strm, state, value, tool_box
 
 // ============================================================================
@@ -56,7 +55,7 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
     value.reserve(state.size);
 
     // Select parser
-    tool_box->select(std::string{}, value.tag(), true);
+    tool_box->select(std::string_view{}, value.tag(), true);
   }
 
   // Parse contents
@@ -92,7 +91,7 @@ template <std::endian endianness> DumpResult write_list(W_ARGS) {
       return ret;
 
     // Select writer
-    tool_box->select(std::string{}, value.tag(), false);
+    tool_box->select(std::string_view{}, value.tag(), false);
   }
 
   // Dump contents

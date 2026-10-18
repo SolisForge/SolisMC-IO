@@ -4,7 +4,7 @@
 // Common array-like structure parsing
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      14/09/2026 (created 14/09/2026)
+// Date      13/10/2026 (created 14/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -13,6 +13,7 @@
 
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/tags.hxx"
 
 namespace minecraft::nbt::byte {
 
@@ -25,12 +26,30 @@ namespace minecraft::nbt::byte {
  *
  */
 struct ArrayRWState {
+  /**
+   * @brief Actual representation is int32_t, but store
+   * here in unsigned to prevent negative sizes
+   */
+  using ArraySize_t = uint32_t;
+
   // Size
   IntRWState size_state{};
-  uint32_t size{0};
+  ArraySize_t size{0};
 
   // Contents
-  RWState<uint32_t> content_state{};
+  RWState<ArraySize_t> content_state{};
+
+  // Tag
+  Tags tag;
+  bool is_tag_processed{false};
+
+  void reset() {
+    size_state.reset();
+    content_state.reset();
+    size = 0;
+    tag = Tags::END;
+    is_tag_processed = false;
+  }
 };
 
 } // namespace minecraft::nbt::byte

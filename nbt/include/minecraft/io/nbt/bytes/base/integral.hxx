@@ -4,15 +4,15 @@
 // Definition of base functions for integral type byte parsing
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      10/08/2026 (created 10/08/2026)
+// Date      13/10/2026 (created 10/08/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
+#include "minecraft/io/nbt/game_info.hxx"
 #include <bit>
 #include <concepts>
 #include <cstdint>

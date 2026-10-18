@@ -4,15 +4,14 @@
 // Bytes encoder implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      30/08/2026 (created 30/08/2026)
+// Date      18/10/2026 (created 10/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
-#include "minecraft/io/nbt/tags.hxx"
+#include "minecraft/io/nbt/nbt.hxx" // IWYU pragma: keep
 #include "processing.hxx"
 #include <concepts>
 #include <cstddef>
@@ -21,14 +20,12 @@
 #include <ostream>
 #include <string_view>
 
-#include "minecraft/io/nbt/bytes/stateful/array/list.hxx"
-#include "minecraft/io/nbt/bytes/stateful/float.hxx"
-#include "minecraft/io/nbt/bytes/stateful/integral.hxx"
-#include "minecraft/io/nbt/bytes/stateful/string.hxx"
-
 #include "objects/list.hxx"
 
 namespace minecraft::nbt::app {
+
+static const byte::DefaultToolBox<GameVersion::JAVA>::SharedPtr NBT_TOOLBOX = {
+    std::make_shared<byte::DefaultToolBox<GameVersion::JAVA>>()};
 
 using byte::DumpResult;
 using byte::Stream;
@@ -48,86 +45,34 @@ int display_value(std::string_view encoded_data, DumpResult const &result,
 }
 
 // ============================================================================
-template <std::signed_integral T>
-int encode_integral(std::string const &value_str) {
-  auto value =
-      static_cast<T>(std::strtoll(value_str.c_str(), std::nullptr_t{}, 10));
-  byte::IntegralWriter<T, GameVersion::JAVA> writer{};
-
-  // Setup the stream
-  std::string out_str;
-  out_str.resize(sizeof(T));
-  Stream strm{out_str.data(), out_str.size()};
-
-  // Dump value
-  writer.bind(value);
-  auto ret = writer.dump(strm);
-  return display_value(out_str, ret, out_str.size());
-}
-
+// Run the parser for any type
 // ============================================================================
-template <std::floating_point T>
-int encode_float(std::string const &value_str) {
-  auto value = static_cast<T>(std::strtod(value_str.c_str(), std::nullptr_t{}));
-  byte::FloatWriter<T, GameVersion::JAVA> writer{};
+constexpr auto BLOCK_SIZE{1 << 10};
+template <typename T>
+int encode_any(T &value, std::size_t block_size = BLOCK_SIZE) {
 
-  // Setup the string
-  std::string out_str;
-  out_str.resize(sizeof(T));
-  Stream strm{out_str.data(), out_str.size()};
-
-  // Dump value
-  writer.bind(value);
-  auto ret = writer.dump(strm);
-  return display_value(out_str, ret, out_str.size());
-}
-
-// ============================================================================
-int encode_string(std::string const &value) {
-  byte::StringWriter<GameVersion::JAVA> writer{};
-
-  // Setup the string
-  std::string out_str;
-  // Size == string size - 1 to remove white spaces
-  out_str.resize(sizeof(uint16_t) + value.size());
-  Stream strm{out_str.data(), out_str.size()};
-
-  // Dump value
-  writer.bind(value);
-  auto ret = writer.dump(strm);
-  return display_value(out_str, ret, out_str.size() - 1);
-}
-
-// ============================================================================
-int encode_list(std::string const &value) {
-  // Import list
-  auto list = list_import(value);
+  auto writer = NBT_TOOLBOX->get_writer_for<T>();
+  writer->bind(value);
 
   // Setup the stream
   std::string out_str{};
-  out_str.resize(sizeof(uint16_t) + list.size());
+  out_str.resize(0);
   Stream strm{out_str.data(), out_str.size()};
-
-  // Dump value
-  auto toolbox = std::make_shared<byte::DefaultToolBox<GameVersion::JAVA>>();
-  byte::ListWriter<GameVersion::JAVA> writer{toolbox};
-  writer.bind(list);
 
   // Unknown output size: encode by block
   DumpResult ret;
-  constexpr auto BLOCK_SIZE{1 << 10};
   std::size_t curr_size = 0;
   std::size_t processed = 0;
   do {
     // Resize output string
-    curr_size += BLOCK_SIZE;
+    curr_size += block_size;
     out_str.resize(curr_size);
     strm.data = out_str.data() + processed;
-    strm.n = BLOCK_SIZE;
+    strm.n = block_size;
 
     // Encode more data
-    ret = writer.dump(strm);
-    processed += BLOCK_SIZE - strm.n;
+    ret = writer->dump(strm);
+    processed += block_size - strm.n;
   } while (ret == DumpResult::UNFINISHED);
 
   return display_value(std::string_view(out_str).substr(0, processed), ret,
@@ -135,9 +80,37 @@ int encode_list(std::string const &value) {
 }
 
 // ============================================================================
+// String -> T conversions
+// ============================================================================
+template <std::signed_integral T>
+int encode_integral(std::string_view value_str) {
+  auto value =
+      static_cast<T>(std::strtoll(value_str.data(), std::nullptr_t{}, 10));
+  return encode_any(value, sizeof(T));
+}
+
+// ============================================================================
+template <std::floating_point T> int encode_float(std::string_view value_str) {
+  auto value = static_cast<T>(std::strtod(value_str.data(), std::nullptr_t{}));
+  return encode_any(value, sizeof(T));
+}
+
+// ============================================================================
+int encode_string(std::string_view value) {
+  std::string s{value};
+  return encode_any(s);
+}
+
+// ============================================================================
+int encode_list(std::string_view value) {
+  auto list = list_import(value);
+  return encode_any(list);
+}
+
+// ============================================================================
 // Main function
 // ============================================================================
-int encode_bytes(std::string const &value, const Tags tag) {
+int encode_bytes(std::string_view value, const Tags tag) {
   switch (tag) {
     using enum minecraft::nbt::Tags;
 

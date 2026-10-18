@@ -4,7 +4,7 @@
 // Interface for the parsers objects
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      21/09/2026 (created 21/09/2026)
+// Date      13/10/2026 (created 21/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -12,6 +12,7 @@
 #pragma once
 
 #include "minecraft/io/nbt/bytes/base/common.hxx"
+#include "minecraft/io/nbt/game_info.hxx"
 
 #include <any>
 #include <memory>
@@ -65,17 +66,23 @@ struct ByteParser {
   virtual std::any any_get() = 0;
 };
 
+/**
+ * @brief Type restriction to byte parser implementations
+ */
+template <typename T>
+concept ParserImpl = std::is_base_of_v<ByteParser, T>;
+
 // ============================================================================
-// Byte dumping
+// Byte writing
 // ============================================================================
 
 /**
  * @brief Interface for a byte parsing object
  */
-struct ByteDumper {
-  using SharedPtr = std::shared_ptr<ByteDumper>;
+struct ByteWriter {
+  using SharedPtr = std::shared_ptr<ByteWriter>;
 
-  virtual ~ByteDumper() = default;
+  virtual ~ByteWriter() = default;
 
   /**
    * @brief Bind a new value to write
@@ -102,5 +109,18 @@ struct ByteDumper {
    */
   virtual void reset() = 0;
 };
+
+/**
+ * @brief Type restriction to byte writer implementations
+ */
+template <typename T>
+concept WriterImpl = std::is_base_of_v<ByteWriter, T>;
+
+// ============================================================================
+// Declaration of generic parser and writer
+// ============================================================================
+
+template <typename, GameVersion> struct Parser {};
+template <typename, GameVersion> struct Writer {};
 
 } // namespace minecraft::nbt::byte

@@ -4,7 +4,7 @@
 // Parse from any tag
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      09/10/2026 (created 09/10/2026)
+// Date      10/10/2026 (created 09/10/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -15,7 +15,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "minecraft/io/nbt/bytes/errors.hxx"
+#include "minecraft/io/nbt/errors.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 
 namespace minecraft::nbt::app {
@@ -44,7 +44,7 @@ inline std::any parse_from_tag(std::string_view str, Tags tag) {
 
   // Default: raise an exception
   default:
-    throw byte::errors::UnsupportedTag(tag, "app::parse_from_tag");
+    throw errors::UnsupportedTag(tag, "app::parse_from_tag");
   }
 }
 

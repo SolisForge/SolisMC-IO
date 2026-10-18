@@ -4,14 +4,13 @@
 // Stateful parser for floating-point types
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      24/09/2026 (created 24/09/2026)
+// Date      13/10/2026 (created 24/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 
@@ -25,7 +24,7 @@ namespace minecraft::nbt::byte {
  * @brief Stateful parser for floating point types
  */
 template <std::floating_point T, GameVersion GV>
-struct FloatParser : public ByteParser {
+struct Parser<T, GV> : public ByteParser {
 
   /**
    * @brief Parse an float type value from a stream
@@ -63,7 +62,7 @@ private:
  * @brief Stateful dumper for float values
  */
 template <std::floating_point T, GameVersion GV>
-struct FloatWriter : public ByteDumper {
+struct Writer<T, GV> : public ByteWriter {
 
   /**
    * @brief Bind a new value to write
@@ -110,10 +109,10 @@ private:
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
-  extern template struct FloatParser<type, GameVersion::JAVA>;                 \
-  extern template struct FloatParser<type, GameVersion::BEDROCK>;              \
-  extern template struct FloatWriter<type, GameVersion::JAVA>;                 \
-  extern template struct FloatWriter<type, GameVersion::BEDROCK>;
+  extern template struct Parser<type, GameVersion::JAVA>;                      \
+  extern template struct Parser<type, GameVersion::BEDROCK>;                   \
+  extern template struct Writer<type, GameVersion::JAVA>;                      \
+  extern template struct Writer<type, GameVersion::BEDROCK>;
 
 EXPORT(float)
 EXPORT(double)

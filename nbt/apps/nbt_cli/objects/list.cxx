@@ -6,22 +6,23 @@
 // List are represented as "type[contents,...]" in user-friendly format.
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      07/10/2026 (created 07/10/2026)
+// Date      13/10/2026 (created 07/10/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include <ranges>
-#include <sstream>
 #include <string_view>
-#include <vector>
 
-#include "minecraft/io/nbt/bytes/errors.hxx"
+#include "minecraft/io/nbt/errors.hxx"
+#include "minecraft/io/nbt/objects/list.hxx"
 #include "minecraft/io/nbt/tags.hxx"
 
 #include "../format.hxx"
 #include "list.hxx"
 #include "parse_any.hxx"
+
+using minecraft::nbt::IsVector;
 
 namespace minecraft::nbt::app {
 
@@ -55,54 +56,29 @@ List list_import(std::string_view input_string) {
 }
 
 // ============================================================================
-// List export
-// ============================================================================
 template <typename T>
-void display_vector(std::vector<T> const &value, std::stringstream &ss) {
-  // Display values
-  std::size_t i{0};
-  ss << "[";
-  for (auto const &item : value) {
-    fmt_value<T>(ss, item);
-    if (i++ < value.size() - 1)
-      ss << ",";
-  }
-  ss << "]";
-}
-
-template <typename T>
-void display_vector(std::vector<std::vector<T>> const &value,
-                    std::stringstream &ss) {
-  // Display values
-  std::size_t i{0};
-  ss << "[";
-  for (auto const &item : value) {
-    display_vector(item, ss);
-    if (i++ < value.size() - 1)
-      ss << ",";
-  }
-  ss << "]";
+inline void fmt_casted_list(std::ostream &os, List const &list) {
+  auto l = list.copy_cast<std::vector<T>>();
+  fmt_value(os, l);
 }
 
 // ============================================================================
-std::string list_export(const List &list) {
+void fmt_list(std::ostream &os, List const &list) {
   using enum Tags;
-  std::stringstream ss{};
-  ss << to_str(list.tag());
+  os << to_string(list.tag());
 
   // Export list as "type[contents,...]"
   switch (list.tag()) {
 #define X(tag)                                                                 \
   case tag:                                                                    \
-    display_vector(list.copy_cast<get_type<tag>>(), ss);                       \
+    fmt_casted_list<get_type<tag>>(os, list);                                  \
     break;
 #include "minecraft/io/nbt/.xmacros/tags.x"
 
   // Default: raise an exception
   default:
-    throw byte::errors::UnsupportedTag(list.tag(), "app::list_export");
+    throw errors::UnsupportedTag(list.tag(), "app::list_export");
   }
-  return ss.str();
 }
 
 } // namespace minecraft::nbt::app

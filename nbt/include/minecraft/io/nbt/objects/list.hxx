@@ -4,7 +4,7 @@
 // NBT List implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      14/09/2026 (created 14/09/2026)
+// Date      13/10/2026 (created 14/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -13,13 +13,24 @@
 #include "minecraft/io/nbt/tags.hxx"
 
 #include <any>
+#include <type_traits>
 #include <vector>
 
 namespace minecraft::nbt {
 
+template <typename T> struct is_vector : std::false_type {};
+template <typename T> struct is_vector<std::vector<T>> : std::true_type {};
+
+template <typename T>
+concept IsVector = is_vector<T>::value;
+
+template <typename T> struct VecElem;
+template <typename E> struct VecElem<std::vector<E>> {
+  using E_t = E;
+};
+
 /**
  * @brief NBT List implementation
- *
  */
 struct List {
 
@@ -105,8 +116,8 @@ struct List {
    * @tparam T the type of the elements of the vector
    * @return a vector with elements casted in the given type
    */
-  template <typename T> std::vector<T> move_cast() {
-    return std::move(std::any_cast<std::vector<T>>(container_));
+  template <IsVector T> T move_cast() {
+    return std::move(std::any_cast<T>(container_));
   }
 
   /**
@@ -115,12 +126,8 @@ struct List {
    * @tparam T the type of the elements of the vector
    * @return a vector with elements casted in the given type
    */
-  template <typename T> std::vector<T> copy_cast() const {
-    std::vector<T> out;
-    out.reserve(container_.size());
-    for (auto const &elem : container_)
-      out.push_back(std::any_cast<T>(elem));
-    return out;
+  template <IsVector T> T copy_cast() const {
+    return std::any_cast<T>(container_);
   }
 
   // ======================================================
@@ -134,5 +141,18 @@ private:
   Tags tag_{};
   std::vector<std::any> container_{}; //< Data container
 };
+
+// ============================================================================
+// Type <-> Tags
+// ============================================================================
+
+namespace details {
+
+template <> struct get_type_obj<Tags::LIST> {
+  using T = List;
+};
+template <> constexpr auto get_tag<List>() { return Tags::LIST; }
+
+} // namespace details
 
 } // namespace minecraft::nbt

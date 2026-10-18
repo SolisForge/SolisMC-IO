@@ -4,29 +4,25 @@
 // Bytes decoder implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      30/08/2026 (created 30/08/2026)
+// Date      13/10/2026 (created 30/08/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
-#include "minecraft/io/nbt/tags.hxx"
+#include "minecraft/io/nbt/nbt.hxx" // IWYU pragma: keep
 #include "processing.hxx"
-#include <concepts>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
 
-#include "minecraft/io/nbt/bytes/stateful/array/list.hxx"
-#include "minecraft/io/nbt/bytes/stateful/float.hxx"
-#include "minecraft/io/nbt/bytes/stateful/integral.hxx"
-#include "minecraft/io/nbt/bytes/stateful/string.hxx"
-
 #include "format.hxx"
 
 namespace minecraft::nbt::app {
+
+static const byte::DefaultToolBox<GameVersion::JAVA>::SharedPtr NBT_TOOLBOX = {
+    std::make_shared<byte::DefaultToolBox<GameVersion::JAVA>>()};
 
 using ParseResult = byte::ParseResult;
 using Stream = byte::Stream;
@@ -34,8 +30,7 @@ using Stream = byte::Stream;
 // ============================================================================
 // Simple types functions
 // ============================================================================
-template <typename T>
-int display_value(T const &value, ParseResult const &result) {
+auto display_value(auto const &value, ParseResult const &result) {
   if (result == ParseResult::ENDED)
     fmt_value(std::cout, value);
   else
@@ -44,35 +39,10 @@ int display_value(T const &value, ParseResult const &result) {
 }
 
 // ============================================================================
-template <std::signed_integral T> int decode_integral(Stream &strm) {
-  byte::IntegralParser<T, minecraft::GameVersion::JAVA> parser;
-  auto ret = parser.parse(strm);
-  return display_value(parser.get(), ret);
-}
-
-// ============================================================================
-template <std::floating_point T> int decode_float(Stream &strm) {
-  byte::FloatParser<T, minecraft::GameVersion::JAVA> parser;
-  auto ret = parser.parse(strm);
-  return display_value(parser.get(), ret);
-}
-
-// ============================================================================
-int decode_string(Stream &strm) {
-  byte::StringParser<minecraft::GameVersion::JAVA> parser;
-  auto ret = parser.parse(strm);
-  return display_value(parser.get(), ret);
-}
-
-// ============================================================================
-// List functions
-// ============================================================================
-int decode_list(Stream &strm) {
-  auto toolbox =
-      std::make_shared<byte::DefaultToolBox<minecraft::GameVersion::JAVA>>();
-  byte::ListParser<minecraft::GameVersion::JAVA> parser{toolbox};
-  auto ret = parser.parse(strm);
-  return display_value(parser.get(), ret);
+template <typename T> auto decode_any(Stream &strm) {
+  auto parser = NBT_TOOLBOX->get_parser_for<T>();
+  auto ret = parser->parse(strm);
+  return display_value(std::any_cast<T>(parser->any_get()), ret);
 }
 
 // ============================================================================
@@ -83,28 +53,10 @@ int decode_bytes(std::string &bytes, const Tags tag) {
   switch (tag) {
     using enum minecraft::nbt::Tags;
 
-    // Integral type
-  case BYTE:
-    return decode_integral<int8_t>(strm);
-  case SHORT:
-    return decode_integral<int16_t>(strm);
-  case INT:
-    return decode_integral<int32_t>(strm);
-  case LONG:
-    return decode_integral<int64_t>(strm);
-
-  // Floating point type
-  case FLOAT:
-    return decode_float<float>(strm);
-  case DOUBLE:
-    return decode_float<double>(strm);
-
-  // STRING
-  case STRING:
-    return decode_string(strm);
-
-  case LIST:
-    return decode_list(strm);
+#define X(tag)                                                                 \
+  case tag:                                                                    \
+    return decode_any<get_type<tag>>(strm);
+#include "minecraft/io/nbt/.xmacros/tags.x"
 
   default:
     throw DecodingNotImplemented(tag);

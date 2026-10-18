@@ -4,7 +4,7 @@
 // NTB data type tags definition
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      30/08/2026 (created 30/08/2026)
+// Date      13/10/2026 (created 30/08/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -52,7 +52,7 @@ enum class Tags : uint8_t {
  * @param tag NBT tag
  * @return string representation
  */
-constexpr const char *to_str(Tags const tag) {
+constexpr const char *to_string(Tags const tag) {
   using enum Tags;
 
   switch (tag) {
@@ -107,17 +107,12 @@ constexpr char to_byte(Tags t) { return static_cast<char>(t); }
 // ============================================================================
 // Type <-> Tags
 // ============================================================================
-// Forward declaration of NBT types
-struct List;
-struct Compound;
 
 namespace details {
 
 // Mapping objects
 
-template <Tags E> struct get_type_obj {
-  using T = Compound;
-};
+template <Tags E> struct get_type_obj;
 template <typename T> constexpr auto get_tag() { return Tags::COMPOUND; };
 
 #define X(tag, type)                                                           \
@@ -137,10 +132,9 @@ X(FLOAT, float)
 X(DOUBLE, double)
 X(STRING, std::string)
 X(BYTE_ARRAY, std::vector<int8_t>)
-X(LIST, List)
-X(COMPOUND, Compound)
 X(INT_ARRAY, std::vector<int32_t>)
 X(LONG_ARRAY, std::vector<int64_t>)
+// List & compound mappings are declared in their own header files
 
 #undef X
 

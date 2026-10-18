@@ -4,14 +4,13 @@
 // Stateful parser for integral types
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      24/09/2026 (created 24/09/2026)
+// Date      13/10/2026 (created 24/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include <any>
@@ -26,7 +25,7 @@ namespace minecraft::nbt::byte {
  * @brief Stateful parser for integral types
  */
 template <std::integral T, GameVersion GV>
-struct IntegralParser : public ByteParser {
+struct Parser<T, GV> : public ByteParser {
 
   /**
    * @brief Parse an integral type value from a stream
@@ -64,7 +63,7 @@ private:
  * @brief Stateful dumper for integral values
  */
 template <std::integral T, GameVersion GV>
-struct IntegralWriter : public ByteDumper {
+struct Writer<T, GV> : public ByteWriter {
 
   /**
    * @brief Bind a new value to write
@@ -111,10 +110,10 @@ private:
 // Export
 // ============================================================================
 #define EXPORT(type)                                                           \
-  extern template struct IntegralParser<type, GameVersion::JAVA>;              \
-  extern template struct IntegralParser<type, GameVersion::BEDROCK>;           \
-  extern template struct IntegralWriter<type, GameVersion::JAVA>;              \
-  extern template struct IntegralWriter<type, GameVersion::BEDROCK>;
+  extern template struct Parser<type, GameVersion::JAVA>;                      \
+  extern template struct Parser<type, GameVersion::BEDROCK>;                   \
+  extern template struct Writer<type, GameVersion::JAVA>;                      \
+  extern template struct Writer<type, GameVersion::BEDROCK>;
 
 EXPORT(int8_t)
 EXPORT(int16_t)

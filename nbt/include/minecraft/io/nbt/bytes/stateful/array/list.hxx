@@ -4,14 +4,13 @@
 // Stateful parser for NBT::List std::vector<std::any>) types
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      28/09/2026 (created 28/09/2026)
+// Date      13/10/2026 (created 28/09/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
-#include "minecraft/game_info.hxx"
-#include "minecraft/io/nbt/bytes/base/array/list.hxx"
+#include "minecraft/io/nbt/bytes/base/array/interface.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
 #include <cstddef>
@@ -25,9 +24,9 @@ namespace minecraft::nbt::byte {
 /**
  * @brief Parse for the NBT::List object
  */
-template <GameVersion GV> struct ListParser : ByteParser {
+template <GameVersion GV> struct Parser<List, GV> : ByteParser {
 
-  explicit ListParser<GV>(ToolBoxInterface::SharedPtr);
+  explicit Parser<List, GV>(ToolBoxInterface::SharedPtr);
 
   /**
    * @brief Parse an integral type value from a stream
@@ -54,7 +53,7 @@ template <GameVersion GV> struct ListParser : ByteParser {
 
 private:
   ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
-  ListRWState state_;                   //< Parsing state
+  ArrayRWState state_;                  //< Parsing state
   List value_;                          //< Parsed value
 };
 
@@ -65,9 +64,9 @@ private:
 /**
  * @brief Stateful dumper for integral values
  */
-template <GameVersion GV> struct ListWriter : public ByteDumper {
+template <GameVersion GV> struct Writer<List, GV> : public ByteWriter {
 
-  explicit ListWriter<GV>(ToolBoxInterface::SharedPtr);
+  explicit Writer<List, GV>(ToolBoxInterface::SharedPtr);
 
   /**
    * @brief Bind a new value to write
@@ -106,7 +105,7 @@ template <GameVersion GV> struct ListWriter : public ByteDumper {
 
 private:
   ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
-  ListRWState state_{};
+  ArrayRWState state_{};
   const List *value_ = std::nullptr_t{};
   bool bound_ = false;
 };
@@ -114,9 +113,9 @@ private:
 // ============================================================================
 // Export
 // ============================================================================
-extern template struct ListParser<GameVersion::JAVA>;
-extern template struct ListParser<GameVersion::BEDROCK>;
-extern template struct ListWriter<GameVersion::JAVA>;
-extern template struct ListWriter<GameVersion::BEDROCK>;
+extern template struct Parser<List, GameVersion::JAVA>;
+extern template struct Parser<List, GameVersion::BEDROCK>;
+extern template struct Writer<List, GameVersion::JAVA>;
+extern template struct Writer<List, GameVersion::BEDROCK>;
 
 } // namespace minecraft::nbt::byte
