@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::ByteArray byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
 #include "solismc_io/dataset/1_float_list.hpp"
@@ -17,8 +17,11 @@
 
 using namespace minecraft::nbt;
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::Array[Float]>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::Array[Float]>"
+)
+ {
 
   ByteParser<std::vector<float>> parser;
 

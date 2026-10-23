@@ -24,84 +24,91 @@
 #include <vector>
 
 namespace minecraft::nbt {
-
 /**
  * @brief Base struct for NBT types
  */
 struct NBTType {
+    NBTType() {
+    }
 
-  NBTType() {}
+    ~NBTType() {
+        // Delete allocated components
+        if (name != nullptr)
+            delete name;
+    }
 
-  ~NBTType() {
-    // Delete allocated components
-    if (name != nullptr)
-      delete name;
-  }
-
-  inline const char *getName() { return name; }
-  inline size_t getNameSize() { return name_length; }
+    inline const char *getName() { return name; }
+    inline size_t getNameSize() { return name_length; }
 
 public:
-  char *name = nullptr;
-  unsigned short name_length = 0;
+    char *name = nullptr;
+    unsigned short name_length = 0;
 };
 
-// ============================================================================
+// ================================================================================================
 // NBT primitives
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Simple implementation of NBTType for primitive types.
  * @tparam T the corresponding C++ type
  */
-template <typename T> struct NBTPrimitive : NBTType {
-  typedef T CType;
+template<typename T>
+struct NBTPrimitive : NBTType {
+    typedef T CType;
 
-  T val;
-  constexpr NBTPrimitive(T other) : val(other) {}
-  constexpr NBTPrimitive() {}
-  operator T() { return val; }
+    T val;
+
+    constexpr NBTPrimitive(T other) : val(other) {
+    }
+
+    constexpr NBTPrimitive() {
+    }
+
+    operator T() { return val; }
 };
 
-typedef NBTPrimitive<int8_t> Byte;     //!< Byte field
+typedef NBTPrimitive<int8_t> Byte; //!< Byte field
 typedef NBTPrimitive<uint8_t> Boolean; //!< Boolean use a byte field
-typedef NBTPrimitive<int16_t> Short;   //!< Short value field
-typedef NBTPrimitive<int32_t> Int;     //!< Int value field
-typedef NBTPrimitive<int64_t> Long;    //!< Long value field
-typedef NBTPrimitive<float> Float;     //!< Float value field
-typedef NBTPrimitive<double> Double;   //!< Double value field
+typedef NBTPrimitive<int16_t> Short; //!< Short value field
+typedef NBTPrimitive<int32_t> Int; //!< Int value field
+typedef NBTPrimitive<int64_t> Long; //!< Long value field
+typedef NBTPrimitive<float> Float; //!< Float value field
+typedef NBTPrimitive<double> Double; //!< Double value field
 
 /**
  * @brief String value field
  */
 struct String : NBTPrimitive<char *> {
-  uint16_t val_size;
+    uint16_t val_size;
 };
 
-// ============================================================================
+// ================================================================================================
 // NBT Lists implementation
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief NBT list base interface
  * @tparam T the type of the list elements
  */
-template <typename T> struct List : NBTType, std::vector<T> {
-  typedef T CType;
+template<typename T>
+struct List : NBTType, std::vector<T> {
+    typedef T CType;
 };
-typedef List<int8_t> ByteArray;  //!< List of bytes
-typedef List<int32_t> IntArray;  //!< List of int
+
+typedef List<int8_t> ByteArray; //!< List of bytes
+typedef List<int32_t> IntArray; //!< List of int
 typedef List<int64_t> LongArray; //!< List of long
 
-// ============================================================================
+// ================================================================================================
 // NBT Object implementation
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief NBT general object.
  */
-struct Compound : NBTType, std::map<String, NBTType *> {};
-
+struct Compound : NBTType, std::map<String, NBTType *> {
+};
 } // namespace minecraft::nbt
 
 #endif

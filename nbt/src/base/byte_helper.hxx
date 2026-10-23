@@ -4,9 +4,13 @@
 // Byte manipulation helpers for NBT parsing & reading
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      02/09/2026 (created 02/09/2026)
+// Created   02/09/2026
+// ============================================================================
+
+// ============================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
@@ -19,7 +23,6 @@
 using minecraft::nbt::byte::Stream;
 
 namespace helper {
-
 // ============================================================================
 /**
  * @brief Copy n bytes from one buffer to another
@@ -31,10 +34,10 @@ namespace helper {
  * @param offset offset to allow partial type reading (reading by block)
  * @return number of copied bytes
  */
-template <std::endian data_endianness, std::unsigned_integral T = uint8_t>
+template<std::endian data_endianness, std::unsigned_integral T = uint8_t>
 T read_bytes(Stream &strm, char *const dest, T type_length, T offset) {
   // Get copy positions
-  const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
+  const auto copy_length = std::min((std::size_t) type_length - offset, strm.n);
   auto src_start = strm.data;
   auto src_end = strm.data + copy_length;
   auto dest_start = dest + offset;
@@ -45,7 +48,7 @@ T read_bytes(Stream &strm, char *const dest, T type_length, T offset) {
   else
     std::reverse_copy(src_start, src_end, dest_start);
   strm.inc(copy_length);
-  return (T)copy_length;
+  return (T) copy_length;
 }
 
 // ============================================================================
@@ -59,10 +62,10 @@ T read_bytes(Stream &strm, char *const dest, T type_length, T offset) {
  * @param offset offset to allow partial type reading (reading by block)
  * @return number of copied bytes
  */
-template <std::endian data_endianness, std::unsigned_integral T = uint8_t>
+template<std::endian data_endianness, std::unsigned_integral T = uint8_t>
 T write_bytes(Stream &strm, const char *const dest, T type_length, T offset) {
   // Get copy positions
-  const auto copy_length = std::min((std::size_t)type_length - offset, strm.n);
+  const auto copy_length = std::min((std::size_t) type_length - offset, strm.n);
   auto src_start = dest;
   auto src_end = dest + copy_length;
   auto dest_start = strm.data + offset;
@@ -73,7 +76,6 @@ T write_bytes(Stream &strm, const char *const dest, T type_length, T offset) {
   else
     std::reverse_copy(src_start, src_end, dest_start);
   strm.inc(copy_length);
-  return (T)copy_length;
+  return (T) copy_length;
 }
-
 } // namespace helper

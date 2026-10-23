@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // Bytes decoder
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
 #include <format>
 #include <string>
@@ -20,26 +20,27 @@
 using minecraft::nbt::Tags;
 
 namespace minecraft::nbt::app {
-
-// ============================================================================
+// ================================================================================================
 struct DecodingNotImplemented : public solis::SolisError {
-
-  explicit DecodingNotImplemented(Tags const tag)
-      : solis::SolisError(std::format(
-            "Decoding for type {} is not implemented ", to_string(tag))) {}
+    explicit DecodingNotImplemented(Tags const tag)
+        : solis::SolisError(std::format(
+            "Decoding for type {} is not implemented ",
+            to_string(tag))) {
+    }
 };
-// ============================================================================
+
+// ================================================================================================
 struct EncodingNotImplemented : public solis::SolisError {
-
-  explicit EncodingNotImplemented(Tags const tag)
-      : solis::SolisError(std::format(
-            "Encoding for type {} is not implemented ", to_string(tag))) {}
+    explicit EncodingNotImplemented(Tags const tag)
+        : solis::SolisError(std::format(
+            "Encoding for type {} is not implemented ",
+            to_string(tag))) {
+    }
 };
 
-// ============================================================================
+// ================================================================================================
 int decode_bytes(std::string &bytes, Tags const tag);
 
-// ============================================================================
+// ================================================================================================
 int encode_bytes(std::string_view value, Tags const tag);
-
 } // namespace minecraft::nbt::app

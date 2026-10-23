@@ -4,9 +4,13 @@
 // NBT List (std::vector<std::any>) structure parsing implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 30/09/2026)
+// Created   30/09/2026
+// ============================================================================
+
+// ============================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/array/list.hxx"
@@ -15,7 +19,6 @@
 #include "minecraft/io/nbt/tags.hxx"
 
 namespace minecraft::nbt::byte {
-
 /**
  * @brief Length in bytes needed for the list size
  */
@@ -33,8 +36,8 @@ constexpr auto LIST_SIZE_BYTES{sizeof(List::SizeField_t)};
 // Base implementation
 // ============================================================================
 namespace base {
-
-template <std::endian endianness> ParseResult read_list(R_ARGS) {
+template<std::endian endianness>
+ParseResult read_list(R_ARGS) {
   // Parse tag
   // ------------------------------------------------------
   if (!state.is_tag_processed) {
@@ -49,8 +52,11 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
   // ------------------------------------------------------
   if (state.size_state.left(LIST_SIZE_BYTES) > 0) {
     if (auto ret = read_integral<endianness>(
-            strm, state.size_state, LIST_SIZE_BYTES, (char *)(&state.size));
-        ret != ParseResult::ENDED)
+        strm,
+        state.size_state,
+        LIST_SIZE_BYTES,
+        (char *) (&state.size));
+      ret != ParseResult::ENDED)
       return ret;
     value.reserve(state.size);
 
@@ -70,7 +76,8 @@ template <std::endian endianness> ParseResult read_list(R_ARGS) {
   return ParseResult::ENDED;
 }
 
-template <std::endian endianness> DumpResult write_list(W_ARGS) {
+template<std::endian endianness>
+DumpResult write_list(W_ARGS) {
   // Dump tag
   // ------------------------------------------------------
   if (!state.is_tag_processed) {
@@ -86,8 +93,11 @@ template <std::endian endianness> DumpResult write_list(W_ARGS) {
   // ------------------------------------------------------
   if (state.size_state.left(LIST_SIZE_BYTES) > 0) {
     if (auto ret = write_integral<endianness>(
-            strm, state.size_state, LIST_SIZE_BYTES, (char *)&state.size);
-        ret != DumpResult::ENDED)
+        strm,
+        state.size_state,
+        LIST_SIZE_BYTES,
+        (char *) &state.size);
+      ret != DumpResult::ENDED)
       return ret;
 
     // Select writer
@@ -106,7 +116,6 @@ template <std::endian endianness> DumpResult write_list(W_ARGS) {
 
   return DumpResult::ENDED;
 }
-
 } // namespace base
 
 // ============================================================================
@@ -114,7 +123,6 @@ template <std::endian endianness> DumpResult write_list(W_ARGS) {
 // ============================================================================
 
 namespace java {
-
 ParseResult read_list(R_ARGS) {
   return base::read_list<std::endian::big>(ARGS_FWD);
 }
@@ -122,11 +130,9 @@ ParseResult read_list(R_ARGS) {
 DumpResult write_list(W_ARGS) {
   return base::write_list<std::endian::big>(ARGS_FWD);
 }
-
 } // namespace java
 
 namespace bedrock {
-
 ParseResult read_list(R_ARGS) {
   return base::read_list<std::endian::little>(ARGS_FWD);
 }
@@ -134,7 +140,5 @@ ParseResult read_list(R_ARGS) {
 DumpResult write_list(W_ARGS) {
   return base::write_list<std::endian::little>(ARGS_FWD);
 }
-
 } // namespace bedrock
-
 } // namespace minecraft::nbt::byte

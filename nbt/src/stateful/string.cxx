@@ -4,17 +4,20 @@
 // Stateful parser for strings implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      10/10/2026 (created 25/09/2026)
+// Created   25/09/2026
+// ============================================================================
+
+// ============================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/stateful/string.hxx"
 
 namespace minecraft::nbt::byte {
-
 // ============================================================================
-template <GameVersion GV>
+template<GameVersion GV>
 ParseResult Parser<std::string, GV>::parse(Stream &strm) {
   // Reset state if needed
   if (is_done())
@@ -26,7 +29,8 @@ ParseResult Parser<std::string, GV>::parse(Stream &strm) {
 
 // ============================================================================
 
-template <GameVersion GV> void Parser<std::string, GV>::reset() {
+template<GameVersion GV>
+void Parser<std::string, GV>::reset() {
   state_.size_state.processed = 0;
   state_.data_state.processed = 0;
   value_.resize(0);
@@ -35,7 +39,7 @@ template <GameVersion GV> void Parser<std::string, GV>::reset() {
 // ============================================================================
 // Implementation of writer
 // ============================================================================
-template <GameVersion GV>
+template<GameVersion GV>
 DumpResult Writer<std::string, GV>::dump(Stream &strm) {
   using enum DumpResult;
   // If no value is bound to this writer
@@ -52,17 +56,9 @@ DumpResult Writer<std::string, GV>::dump(Stream &strm) {
 
 // ============================================================================
 
-template <GameVersion GV> void Writer<std::string, GV>::reset() {
+template<GameVersion GV>
+void Writer<std::string, GV>::reset() {
   state_.size_state.processed = 0;
   state_.data_state.processed = 0;
 }
-
-// ============================================================================
-// Export
-// ============================================================================
-template struct Parser<std::string, GameVersion::JAVA>;
-template struct Parser<std::string, GameVersion::BEDROCK>;
-template struct Writer<std::string, GameVersion::JAVA>;
-template struct Writer<std::string, GameVersion::BEDROCK>;
-
 } // namespace minecraft::nbt::byte

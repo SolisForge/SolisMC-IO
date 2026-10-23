@@ -22,10 +22,9 @@
 #include "solis/utils/static.hpp"
 
 namespace minecraft::nbt {
-
-// ============================================================================
+// ================================================================================================
 //    NBT Tags decription
-// ============================================================================
+// ================================================================================================
 
 typedef uint8_t TagID_t;
 
@@ -33,25 +32,24 @@ typedef uint8_t TagID_t;
  * @brief Enumeration correspondance for the NBT types.
  */
 struct NBTTags {
-  enum Tags : TagID_t {
-    END = 0,
-    Byte = 1,
-    Short = 2,
-    Int = 3,
-    Long = 4,
-    Float = 5,
-    Double = 6,
-    ByteArray = 7,
-    String = 8,
-    List = 9,
-    Compound = 10,
-    IntArray = 11,
-    LongArray = 12,
+    enum Tags : TagID_t {
+        END = 0,
+        Byte = 1,
+        Short = 2,
+        Int = 3,
+        Long = 4,
+        Float = 5,
+        Double = 6,
+        ByteArray = 7,
+        String = 8,
+        List = 9,
+        Compound = 10,
+        IntArray = 11,
+        LongArray = 12,
 
-    ERROR = 255
-  };
+        ERROR = 255
+    };
 };
-
 } // namespace minecraft::nbt
 
 #endif

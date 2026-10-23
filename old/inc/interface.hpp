@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-FILEIO
 //
 // Base interface for buffered byte-operations classes
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #ifndef SOLISMC_IO_NBT_COMMON_INTERFACE
 #define SOLISMC_IO_NBT_COMMON_INTERFACE
 
@@ -20,71 +20,75 @@
 #include <type_traits>
 
 namespace minecraft::nbt {
-
-// ============================================================================
+// ================================================================================================
 // Common types
-// ============================================================================
+// ================================================================================================
 using Stream = const char *;
 using Buffer = char *;
 using Size = std::size_t;
 constexpr auto BIT_PER_BYTE{8};
 
 enum class ParseResult : uint8_t {
-  ENDED,
-  UNFINISHED,
-  UNKNOWN_FIELD,
-  WRONG_TYPE,
+    ENDED,
+    UNFINISHED,
+    UNKNOWN_FIELD,
+    WRONG_TYPE,
 };
+
 enum class WriteResult : uint8_t { ENDED, UNFINISHED };
 
 enum class GameVersion { JAVA, BEDROCK };
 
 // Endianness
-template <GameVersion GV> struct NBTEndianness;
-template <> struct NBTEndianness<GameVersion::JAVA> {
-  static constexpr auto value = std::endian::big;
+template<GameVersion GV>
+struct NBTEndianness;
+
+template<>
+struct NBTEndianness<GameVersion::JAVA> {
+    static constexpr auto value = std::endian::big;
 };
-template <> struct NBTEndianness<GameVersion::BEDROCK> {
-  static constexpr auto value = std::endian::little;
+
+template<>
+struct NBTEndianness<GameVersion::BEDROCK> {
+    static constexpr auto value = std::endian::little;
 };
 
 namespace byte::base {
-// ============================================================================
+// ================================================================================================
 // Interfaces
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Interface for the NBT byte parser implementations
  */
 struct ByteParserInterface {
+    using UniquePtr = std::unique_ptr<ByteParserInterface>;
 
-  using UniquePtr = std::unique_ptr<ByteParserInterface>;
+    virtual ~ByteParserInterface() = default;
 
-  virtual ~ByteParserInterface() = default;
-
-  /**
+    /**
    * @brief Parse the object from the given byte stream
    *
    * @param strm the byte stream to read from
    * @param n the number of bytes left in the stream
    * @return the state of the parsing
    */
-  virtual ParseResult parse(Stream &strm, Size &n) = 0;
+    virtual ParseResult parse(Stream &strm, Size &n) = 0;
 
-  /**
+    /**
    * @brief Get the value contained inside a FieldValue object
    */
-  virtual FieldValue get_value() const = 0;
+    virtual FieldValue get_value() const = 0;
 
-  /**
+    /**
    * @brief Has the parser finished reading the last value
    */
-  virtual bool is_done() const = 0;
+    virtual bool is_done() const = 0;
 
-  /**
+    /**
    * @brief Reset the internal state of the parser
    */
-  virtual void reset() = 0;
+    virtual void reset() = 0;
 };
 
 /**
@@ -93,35 +97,35 @@ struct ByteParserInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteParser;
+template<typename, GameVersion>
+struct ByteParser;
 
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Interface for the NBT byte writer implementations
  */
 struct ByteWriterInterface {
+    virtual ~ByteWriterInterface() = default;
 
-  virtual ~ByteWriterInterface() = default;
-
-  /**
+    /**
    * @brief Write the object in the given byte stream
    *
    * @param strm the byte stream to write to
    * @param n the number of bytes available for writing in the stream
    * @return the state of the writing operation
    */
-  virtual WriteResult write(Buffer &strm, Size &n) = 0;
+    virtual WriteResult write(Buffer &strm, Size &n) = 0;
 
-  /**
+    /**
    * @brief Has the parser finished writing the last value
    */
-  virtual bool is_done() const = 0;
+    virtual bool is_done() const = 0;
 
-  /**
+    /**
    * @brief Reset the internal state of the parser
    */
-  virtual void reset() = 0;
+    virtual void reset() = 0;
 };
 
 /**
@@ -130,40 +134,42 @@ struct ByteWriterInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteWriter;
+template<typename, GameVersion>
+struct ByteWriter;
 
-// ============================================================================
+// ================================================================================================
 // Concepts
-// ============================================================================
+// ================================================================================================
 
-template <class T>
+template<class T>
 concept IsParserImplementation = std::is_base_of_v<ByteParserInterface, T>;
-template <class T>
+template<class T>
 concept IsWriterImplementation = std::is_base_of_v<ByteWriterInterface, T>;
 
-// ============================================================================
+// ================================================================================================
 // Parser & writer validator
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Validator for NBT byte parser.
  *
  * @tparam _Impl implementation to use to parse this object
  */
-template <IsParserImplementation _Impl>
-struct ByteParserValidator : public _Impl {};
+template<IsParserImplementation _Impl>
+struct ByteParserValidator : public _Impl {
+};
 
 /**
  * @brief Validator for NBT byte writer.
  */
-template <IsWriterImplementation _Impl>
-struct ByteWriterValidator : public _Impl {};
-
+template<IsWriterImplementation _Impl>
+struct ByteWriterValidator : public _Impl {
+};
 } // namespace byte::base
 
-// ============================================================================
+// ================================================================================================
 // Helper macros
-// ============================================================================
+// ================================================================================================
 /**
  * @brief Register the byte parser implementation
  */
@@ -232,7 +238,6 @@ struct ByteWriterValidator : public _Impl {};
 
 #define EXPORT_COMMON_NBT_WRITER(...)                                          \
   FOR_EACH2(__EXPORT_COMMON_NBT_WRITER__IMPL, __VA_ARGS__)
-
 } // namespace minecraft::nbt
 
 #endif

@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::Short byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "solismc_io/dataset/0_short.hpp"
 #include "common.hpp"
@@ -21,8 +21,11 @@ using namespace minecraft::nbt;
 using INT_TYPE = int16_t;
 constexpr auto TYPE_SIZE{sizeof(INT_TYPE)};
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::Short>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::Short>"
+)
+ {
 
   ByteParser<INT_TYPE> parser;
 
@@ -91,8 +94,11 @@ TEST_CASE("BytesParser<NBT::Short>") {
   }
 }
 
-// ============================================================================
-TEST_CASE("BytesWriter<NBT::Short>") {
+// ================================================================================================
+TEST_CASE (
+"BytesWriter<NBT::Short>"
+)
+ {
 
   ByteWriter<INT_TYPE> dumper;
   std::array<char, TYPE_SIZE> buffer;

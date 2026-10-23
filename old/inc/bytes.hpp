@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-FILEIO
 //
 // Utility classes to interact with NBT bytes streams
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #ifndef SOLISMC_IO_NBT_BYTE_PARSING
 #define SOLISMC_IO_NBT_BYTE_PARSING
 
@@ -23,27 +23,23 @@
 #include "minecraft/io/nbt/bytes/struct/object_parser.hpp" // IWYU pragma: keep
 
 namespace minecraft::nbt {
-
 // ------------------------------------------------------------------
 // Default = JAVA specific NBT classes
 // ------------------------------------------------------------------
-template <typename T>
+template<typename T>
 using ByteParser = byte::base::ByteParser<T, GameVersion::JAVA>;
-template <typename T>
+template<typename T>
 using ByteWriter = byte::base::ByteWriter<T, GameVersion::JAVA>;
 
 // ------------------------------------------------------------------
 // Bedrock specific NBT classes
 // ------------------------------------------------------------------
 namespace bedrock {
-
-template <typename T>
+template<typename T>
 using ByteParser = byte::base::ByteParser<T, GameVersion::BEDROCK>;
-template <typename T>
+template<typename T>
 using ByteWriter = byte::base::ByteWriter<T, GameVersion::BEDROCK>;
-
 } // namespace bedrock
-
 } // namespace minecraft::nbt
 
 #endif

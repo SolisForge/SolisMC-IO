@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-FILEIO
 //
 // Get parser implementation from their tag
@@ -8,10 +8,11 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #ifndef SOLISMC_NBT_BYTE_PARSING_GET_PARSER
 #define SOLISMC_NBT_BYTE_PARSING_GET_PARSER
 #include "minecraft/io/nbt/bytes/interface.hpp"
 
-namespace minecraft::nbt::byte::base {} // namespace minecraft::nbt::byte::base
+namespace minecraft::nbt::byte::base {
+} // namespace minecraft::nbt::byte::base
 #endif

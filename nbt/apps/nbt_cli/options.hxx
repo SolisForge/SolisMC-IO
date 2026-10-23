@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // Arguments for NBT cli app
@@ -8,35 +8,34 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
 
 #include "minecraft/io/nbt/tags.hxx"
 #include <filesystem>
 
 namespace minecraft::nbt::app {
-
-// ============================================================================
+// ================================================================================================
 // Helper structs
-// ============================================================================
+// ================================================================================================
 enum class ReadFrom { FILE, STDIN };
+
 enum class ProcessMode { DECODE, ENCODE };
 
-// ============================================================================
+// ================================================================================================
 // Options struct
-// ============================================================================
+// ================================================================================================
 /**
  * @brief Arguments for the NBT cli application
  */
 struct Options {
-
-  ReadFrom input = ReadFrom::STDIN;       //< Where to read the bytes from
-  std::filesystem::path input_file{};     //< Input file to use
-  ProcessMode mode = ProcessMode::DECODE; //< Whether to encode or decode
-  Tags data_type = Tags::COMPOUND;        //< Which type to parse from the bytes
+    ReadFrom input = ReadFrom::STDIN; //< Where to read the bytes from
+    std::filesystem::path input_file{}; //< Input file to use
+    ProcessMode mode = ProcessMode::DECODE; //< Whether to encode or decode
+    Tags data_type = Tags::COMPOUND; //< Which type to parse from the bytes
 };
 
-// ============================================================================
+// ================================================================================================
 /**
  * @brief Parse the command line arguments
  *
@@ -45,5 +44,4 @@ struct Options {
  * @return constructed options structure
  */
 Options parse_args(int argc, char **argv);
-
 } // namespace minecraft::nbt::app

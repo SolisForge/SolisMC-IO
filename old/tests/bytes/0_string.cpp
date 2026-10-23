@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::String byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "solismc_io/dataset/0_string.hpp"
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
@@ -18,8 +18,11 @@
 
 using namespace minecraft::nbt;
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::String>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::String>"
+)
+ {
 
   ByteParser<std::string> parser;
 

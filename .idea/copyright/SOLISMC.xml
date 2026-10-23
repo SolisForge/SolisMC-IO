@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="================================================================================================&#10;#set( &amp;#36;VERSION = &quot;1.0.0&quot; )&#10;Version   &amp;#36;VERSION&#10;Modified  &amp;#36;file.lastModified.format(&quot;dd/MM/YYYY&quot;)&#10;Copyright Solis Forge | 2026 - &amp;#36;{today.year}&#10;          Distributed under MIT License (https://opensource.org/licenses/MIT)&#10;================================================================================================" />
+    <option name="myName" value="SOLISMC" />
+  </copyright>
+</component>

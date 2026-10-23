@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::Double byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "solismc_io/dataset/0_double.hpp"
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
@@ -16,8 +16,11 @@
 
 using namespace minecraft::nbt;
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::Double>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::Double>"
+)
+ {
 
   ByteParser<double> parser;
 

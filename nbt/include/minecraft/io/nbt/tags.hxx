@@ -1,12 +1,16 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // NTB data type tags definition
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 30/08/2026)
+// Created   30/08/2026
+// ================================================================================================
+
+// ============================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #pragma once
@@ -18,33 +22,34 @@
 
 #include <solis/utils/errors.hpp>
 
-namespace minecraft::nbt {
+#include "minecraft/io/nbt/lib_export.hxx"
 
+namespace minecraft::nbt {
 using NBTTagError = solis::SolisError;
 
-// ============================================================================
+// ================================================================================================
 // Tags definitions
-// ============================================================================
+// ================================================================================================
 
-enum class Tags : uint8_t {
-  END = 0,    //< End of COMPOUND object
-  BYTE,       //< 8 bits signed integer
-  SHORT,      //< 16 bits signed integer
-  INT,        //< 32 bits signed integer
-  LONG,       //< 64 bits signed integer
-  FLOAT,      //< 32 bits signed floating point (IEEE 754-2008, binary32)
-  DOUBLE,     //< 64 bits signed floating point (IEEE 754-2008, binary64)
-  BYTE_ARRAY, // unsigned INT size + size BYTE
-  STRING,     // unsigned SHORT size + size UTF-8 BYTEs (not null terminated)
-  LIST,       // TAG + unsigned INT size + size items
-  COMPOUND,   // [TAG + unsigned SHORT size + STRING[size] + payload] + TAG.END
-  INT_ARRAY,  // unsigned INT size + size INT
-  LONG_ARRAY, // unsigned INT size + size LONG
+enum class NBT_EXPORT Tags : uint8_t {
+    END = 0, //< End of COMPOUND object
+    BYTE, //< 8 bits signed integer
+    SHORT, //< 16 bits signed integer
+    INT, //< 32 bits signed integer
+    LONG, //< 64 bits signed integer
+    FLOAT, //< 32 bits signed floating point (IEEE 754-2008, binary32)
+    DOUBLE, //< 64 bits signed floating point (IEEE 754-2008, binary64)
+    BYTE_ARRAY, // unsigned INT size + size BYTE
+    STRING, // unsigned SHORT size + size UTF-8 BYTEs (not null terminated)
+    LIST, // TAG + unsigned INT size + size items
+    COMPOUND, // [TAG + unsigned SHORT size + STRING[size] + payload] + TAG.END
+    INT_ARRAY, // unsigned INT size + size INT
+    LONG_ARRAY, // unsigned INT size + size LONG
 };
 
-// ============================================================================
+// ================================================================================================
 // Tag <-> String
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Return the string representation of the given tag
@@ -52,49 +57,52 @@ enum class Tags : uint8_t {
  * @param tag NBT tag
  * @return string representation
  */
-constexpr const char *to_string(Tags const tag) {
-  using enum Tags;
+NBT_EXPORT constexpr std::string_view to_string(Tags const tag) {
+    using enum Tags;
 
-  switch (tag) {
+    switch (tag) {
+        // Define x macro
+#define X(tag_name)                                                                                \
+    case tag_name:                                                                                 \
+        return #tag_name;
+
+        // Generate all cases
+        X(END)
+#include "minecraft/io/nbt/.xmacros/tags.x"
+
+
+        default:
+            throw NBTTagError(
+                    std::format("Unknown tag {:d} for to_str(Tags)", static_cast<int>(tag)));
+    }
+}
+
+// ================================================================================================
+
+NBT_EXPORT constexpr auto from_string(const std::string_view str) {
+    using enum Tags;
+
     // Define x macro
-#define X(tag_name)                                                            \
-  case tag_name:                                                               \
-    return #tag_name;
+#define X(tag)                                                                                     \
+    if (str == #tag)                                                                               \
+        return tag;
 
     // Generate all cases
     X(END)
 #include "minecraft/io/nbt/.xmacros/tags.x"
 
-  default:
-    throw NBTTagError(std::format("Unknown tag {:d} for to_str(Tags)",
-                                  static_cast<int>(tag)));
-  }
+
+    throw NBTTagError("Unknown tag name " + std::string{str});
 }
 
-// ============================================================================
-
-constexpr Tags from_string(std::string_view str) {
-  using enum Tags;
-
-  // Define x macro
-#define X(tag)                                                                 \
-  if (str.compare(#tag) == 0)                                                  \
-    return tag;
-
-  // Generate all cases
-  X(END)
-#include "minecraft/io/nbt/.xmacros/tags.x"
-  throw NBTTagError(std::format("Unknow tag name {:s}", str));
-}
-
-// ============================================================================
+// ================================================================================================
 // Byte <-> Tags
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Initialize a byte from its char representation
  */
-constexpr Tags from_byte(char c) { return static_cast<Tags>(c); }
+NBT_EXPORT constexpr auto from_byte(char c) { return static_cast<Tags>(c); }
 
 /**
  * @brief Get the byte representation of the tag
@@ -102,27 +110,34 @@ constexpr Tags from_byte(char c) { return static_cast<Tags>(c); }
  * @param t
  * @return constexpr char
  */
-constexpr char to_byte(Tags t) { return static_cast<char>(t); }
+NBT_EXPORT constexpr char to_byte(Tags t) { return static_cast<char>(t); }
 
-// ============================================================================
+// ================================================================================================
 // Type <-> Tags
-// ============================================================================
+// ================================================================================================
 
 namespace details {
-
 // Mapping objects
 
-template <Tags E> struct get_type_obj;
-template <typename T> constexpr auto get_tag() { return Tags::COMPOUND; };
+template<Tags E>
+struct NBT_EXPORT get_type_obj;
 
-#define X(tag, type)                                                           \
-  template <> struct get_type_obj<Tags::tag> {                                 \
-    using T = type;                                                            \
-  };                                                                           \
-  template <> constexpr auto get_tag<type>() { return Tags::tag; }
+template<typename T>
+NBT_EXPORT constexpr auto get_tag() {
+    return Tags::COMPOUND;
+};
+
+#define X(tag, type)                                                                               \
+    template<>                                                                                     \
+    struct NBT_EXPORT get_type_obj<Tags::tag> {                                                    \
+        using T = type;                                                                            \
+    };                                                                                             \
+    template<>                                                                                     \
+    NBT_EXPORT constexpr auto get_tag<type>() {                                                    \
+        return Tags::tag;                                                                          \
+    }
 
 // Mapping listing
-
 X(END, void)
 X(BYTE, int8_t)
 X(SHORT, int16_t)
@@ -137,19 +152,21 @@ X(LONG_ARRAY, std::vector<int64_t>)
 // List & compound mappings are declared in their own header files
 
 #undef X
-
 } // namespace details
 
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Get the C++ type for the given NBT tag
  */
-template <Tags E> using get_type = details::get_type_obj<E>::T;
+template<Tags E>
+using get_type = details::get_type_obj<E>::T;
 
 /**
  * @brief Get the tag associated to this type
  */
-template <typename T> constexpr Tags get_tag() { return details::get_tag<T>(); }
-
+template<typename T>
+NBT_EXPORT constexpr auto get_tag() {
+    return details::get_tag<T>();
+}
 } // namespace minecraft::nbt

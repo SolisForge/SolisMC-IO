@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::Byte byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "solismc_io/dataset/0_byte.hpp"
 #include "common.hpp"
@@ -22,8 +22,11 @@ using INT_TYPE = int8_t;
 constexpr std::size_t TYPE_SIZE{sizeof(INT_TYPE)};
 constexpr auto INCOMPLETE_OFFSET{1};
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::Byte>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::Byte>"
+)
+ {
 
   ByteParser<INT_TYPE> parser;
 
@@ -93,8 +96,11 @@ TEST_CASE("BytesParser<NBT::Byte>") {
   }
 }
 
-// ============================================================================
-TEST_CASE("BytesWriter<NBT::Byte>") {
+// ================================================================================================
+TEST_CASE (
+"BytesWriter<NBT::Byte>"
+)
+ {
 
   ByteWriter<INT_TYPE> dumper;
   std::array<char, TYPE_SIZE> buffer;

@@ -1,14 +1,18 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // NBT List (std::vector<std::any>) structure parsing definition
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 14/09/2026)
+// Created   14/09/2026
+// ================================================================================================
+
+// ================================================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
 
 #include "minecraft/io/nbt/bytes/base/array/interface.hxx"
@@ -17,10 +21,9 @@
 #include "minecraft/io/nbt/objects/list.hxx"
 
 namespace minecraft::nbt::byte {
-
-// ============================================================================
+// ================================================================================================
 // Common resources
-// ============================================================================
+// ================================================================================================
 #define R_ARGS                                                                 \
   Stream &strm, ArrayRWState &state, List &value,                              \
       ToolBoxInterface::SharedPtr &tool_box
@@ -28,14 +31,13 @@ namespace minecraft::nbt::byte {
   Stream &strm, ArrayRWState &state, List const &value,                        \
       ToolBoxInterface::SharedPtr &tool_box
 
-// ============================================================================
+// ================================================================================================
 // Bindings
-// ============================================================================
+// ================================================================================================
 
 // Java implementation
 // ----------------------------------------------------------------------------
 namespace java {
-
 /**
  * @brief Parse a list from the stream
  *
@@ -55,13 +57,11 @@ ParseResult read_list(R_ARGS);
  * @return state of the dumping
  */
 DumpResult write_list(W_ARGS);
-
 } // namespace java
 
 // Bedrock implementation
 // ----------------------------------------------------------------------------
 namespace bedrock {
-
 /**
  * @brief Parse a list from the stream
  *
@@ -81,7 +81,6 @@ ParseResult read_list(R_ARGS);
  * @return state of the dumping
  */
 DumpResult write_list(W_ARGS);
-
 } // namespace bedrock
 
 // General-purpose implementation
@@ -97,7 +96,8 @@ DumpResult write_list(W_ARGS);
  * @param value list to fill
  * @return result of the parsing
  */
-template <GameVersion GV = GameVersion::JAVA> ParseResult read_list(R_ARGS) {
+template<GameVersion GV = GameVersion::JAVA>
+ParseResult read_list(R_ARGS) {
   if constexpr (GV == GameVersion::JAVA)
     return java::read_list(ARGS_FWD);
   return bedrock::read_list(ARGS_FWD);
@@ -112,7 +112,8 @@ template <GameVersion GV = GameVersion::JAVA> ParseResult read_list(R_ARGS) {
  * @param value list to read
  * @return state of the dumping
  */
-template <GameVersion GV = GameVersion::JAVA> DumpResult write_list(W_ARGS) {
+template<GameVersion GV = GameVersion::JAVA>
+DumpResult write_list(W_ARGS) {
   if constexpr (GV == GameVersion::JAVA)
     return java::write_list(ARGS_FWD);
   return bedrock::write_list(ARGS_FWD);
@@ -122,5 +123,5 @@ template <GameVersion GV = GameVersion::JAVA> DumpResult write_list(W_ARGS) {
 
 #undef R_ARGS
 #undef W_ARGS
-
 } // namespace minecraft::nbt::byte
+inline auto minecraft::nbt::List::get(std::size_t i) const { return container_[i]; }

@@ -1,121 +1,115 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // Stateful parser for NBT::List std::vector<std::any>) types
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 28/09/2026)
+// Created   28/09/2026
+// ================================================================================================
+
+// ================================================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
+#include <cstddef>
 #include "minecraft/io/nbt/bytes/base/array/interface.hxx"
 #include "minecraft/io/nbt/bytes/stateful/interface.hxx"
 #include "minecraft/io/nbt/bytes/tool_box.hxx"
-#include <cstddef>
 
 namespace minecraft::nbt::byte {
-
-// ============================================================================
+// ================================================================================================
 // Parser definition
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Parse for the NBT::List object
  */
-template <GameVersion GV> struct Parser<List, GV> : ByteParser {
+template<GameVersion GV>
+struct Parser<List, GV> final : ByteParser {
+    explicit Parser(ToolBoxInterface::SharedPtr);
 
-  explicit Parser<List, GV>(ToolBoxInterface::SharedPtr);
+    /**
+     * @brief Parse an integral type value from a stream
+     *
+     * @param strm stream to parse the integral value from
+     * @return result of the parsing
+     */
+    ParseResult parse(Stream &strm) override;
 
-  /**
-   * @brief Parse an integral type value from a stream
-   *
-   * @param strm stream to parse the integral value from
-   * @return result of the parsing
-   */
-  ParseResult parse(Stream &strm) override;
+    /**
+     * @brief Reset the internal state of the parser
+     */
+    void reset() override;
 
-  /**
-   * @brief Reset the internal state of the parser
-   */
-  void reset() override;
+    // ------------------------------------------------------
+    // Getters
+    // ------------------------------------------------------
 
-  // ------------------------------------------------------
-  // Getters
-  // ------------------------------------------------------
+    [[nodiscard]] bool is_done() const override;
 
-  bool is_done() const override;
+    [[nodiscard]] auto get() const { return std::move(value_); }
 
-  inline List get() const { return value_; }
-
-  inline std::any any_get() override { return get(); }
+    std::any any_get() override { return get(); }
 
 private:
-  ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
-  ArrayRWState state_;                  //< Parsing state
-  List value_;                          //< Parsed value
+    ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
+    ArrayRWState state_; //< Parsing state
+    List value_; //< Parsed value
 };
 
-// ============================================================================
+// ================================================================================================
 // Writer definition
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Stateful dumper for integral values
  */
-template <GameVersion GV> struct Writer<List, GV> : public ByteWriter {
+template<GameVersion GV>
+struct Writer<List, GV> final : ByteWriter {
+    explicit Writer(ToolBoxInterface::SharedPtr);
 
-  explicit Writer<List, GV>(ToolBoxInterface::SharedPtr);
+    /**
+     * @brief Bind a new value to write
+     *
+     * @param v the value to write in the stream
+     */
+    inline void bind(std::any const &v) override { bind(std::any_cast<List>(v)); }
 
-  /**
-   * @brief Bind a new value to write
-   *
-   * @param value the value to write in the stream
-   */
-  inline void bind(std::any const &v) override { bind(std::any_cast<List>(v)); }
+    /**
+     * @brief Bind a new value to write
+     *
+     * @param v the value to write in the stream
+     */
+    inline void bind(List const &v) {
+        value_ = &v;
+        bound_ = true;
+    }
 
-  /**
-   * @brief Bind a new value to write
-   *
-   * @param value the value to write in the stream
-   */
-  inline void bind(List const &v) {
-    value_ = &v;
-    bound_ = true;
-  }
+    /**
+     * @brief Has writer parser completed its work ?
+     */
+    [[nodiscard]] bool is_done() const override;
 
-  /**
-   * @brief Has writer parser completed its work ?
-   */
-  bool is_done() const override;
+    /**
+     * @brief Dump the value into the stream
+     *
+     * @param strm byte stream to write into
+     * @return result of the dump
+     */
+    DumpResult dump(Stream &strm) override;
 
-  /**
-   * @brief Dump the value into the stream
-   *
-   * @param strm byte stream to write into
-   * @return result of the dump
-   */
-  DumpResult dump(Stream &strm) override;
-
-  /**
-   * @brief Reset the internal state of the writer
-   */
-  void reset() override;
+    /**
+     * @brief Reset the internal state of the writer
+     */
+    void reset() override;
 
 private:
-  ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
-  ArrayRWState state_{};
-  const List *value_ = std::nullptr_t{};
-  bool bound_ = false;
+    ToolBoxInterface::SharedPtr toolbox_; //< Toolbox for any parsing
+    ArrayRWState state_{};
+    const List *value_ = std::nullptr_t{};
+    bool bound_ = false;
 };
-
-// ============================================================================
-// Export
-// ============================================================================
-extern template struct Parser<List, GameVersion::JAVA>;
-extern template struct Parser<List, GameVersion::BEDROCK>;
-extern template struct Writer<List, GameVersion::JAVA>;
-extern template struct Writer<List, GameVersion::BEDROCK>;
-
 } // namespace minecraft::nbt::byte

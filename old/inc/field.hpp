@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-FILEIO
 //
 // Type-agnostic field value object
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #ifndef SOLISMC_NBT_BYTE_PARSING_FIELD_VALUE
 #define SOLISMC_NBT_BYTE_PARSING_FIELD_VALUE
 #include "minecraft/io/nbt/tag.hpp"
@@ -21,37 +21,38 @@
 #include <vector>
 
 namespace minecraft::nbt {
-
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Identity of a field
  */
 struct FieldInfo {
-  std::string name;
-  Tag tag;
+    std::string name;
+    Tag tag;
 };
 
-// ============================================================================
+// ================================================================================================
 // Any value implementation
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Object containing an object of any value
  *
  */
 struct FieldValue {
-  explicit FieldValue(const Tag tag, const std::any &v) : tag_(tag), value(v) {}
-  ~FieldValue() = default;
+    explicit FieldValue(const Tag tag, const std::any &v) : tag_(tag), value(v) {
+    }
 
-  template <typename C> const C as() const { return std::any_cast<C>(value); }
+    ~FieldValue() = default;
 
-  inline Tag tag() const { return tag_; }
+    template<typename C>
+    const C as() const { return std::any_cast<C>(value); }
+
+    inline Tag tag() const { return tag_; }
 
 protected:
-  Tag tag_;
-  std::any value;
+    Tag tag_;
+    std::any value;
 };
-
 } // namespace minecraft::nbt
 #endif

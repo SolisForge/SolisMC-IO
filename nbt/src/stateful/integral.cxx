@@ -1,25 +1,28 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // Stateful parser for integral types implementation
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 24/09/2026)
+// Created   24/09/2026
+// ================================================================================================
+
+// ================================================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #include "minecraft/io/nbt/bytes/stateful/integral.hxx"
 #include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
 
 namespace minecraft::nbt::byte {
-
-// ============================================================================
+// ================================================================================================
 // Implementation of parser
-// ============================================================================
+// ================================================================================================
 
-template <std::integral T, GameVersion GV>
+template<std::integral T, GameVersion GV>
 ParseResult Parser<T, GV>::parse(Stream &strm) {
   // Reset state if needed
   if (is_done())
@@ -28,17 +31,18 @@ ParseResult Parser<T, GV>::parse(Stream &strm) {
   return read_int<T, GV>(strm, state_, value_);
 }
 
-// ============================================================================
+// ================================================================================================
 
-template <std::integral T, GameVersion GV> void Parser<T, GV>::reset() {
+template<std::integral T, GameVersion GV>
+void Parser<T, GV>::reset() {
   state_.processed = 0;
   value_ = 0.0;
 }
 
-// ============================================================================
+// ================================================================================================
 // Implementation of writer
-// ============================================================================
-template <std::integral T, GameVersion GV>
+// ================================================================================================
+template<std::integral T, GameVersion GV>
 DumpResult Writer<T, GV>::dump(Stream &strm) {
   using enum DumpResult;
   // If no value is bound to this writer
@@ -53,26 +57,10 @@ DumpResult Writer<T, GV>::dump(Stream &strm) {
   return ENDED;
 }
 
-// ============================================================================
+// ================================================================================================
 
-template <std::integral T, GameVersion GV> void Writer<T, GV>::reset() {
+template<std::integral T, GameVersion GV>
+void Writer<T, GV>::reset() {
   state_.processed = 0;
 }
-
-// ============================================================================
-// Export
-// ============================================================================
-#define EXPORT(type)                                                           \
-  template struct Parser<type, GameVersion::JAVA>;                             \
-  template struct Parser<type, GameVersion::BEDROCK>;                          \
-  template struct Writer<type, GameVersion::JAVA>;                             \
-  template struct Writer<type, GameVersion::BEDROCK>;
-
-EXPORT(int8_t)
-EXPORT(int16_t)
-EXPORT(int32_t)
-EXPORT(int64_t)
-
-#undef EXPORT
-
 } // namespace minecraft::nbt::byte

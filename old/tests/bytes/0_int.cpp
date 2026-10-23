@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_FILEIO
 //
 // Unittests for NBT::Int byte parsing.
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 
 #include "solismc_io/dataset/0_int.hpp"
 #include "minecraft/io/nbt/bytes.hpp" // IWYU pragma: keep
@@ -24,8 +24,11 @@ using namespace minecraft::nbt;
 using INT_TYPE = int32_t;
 constexpr auto TYPE_SIZE{sizeof(INT_TYPE)};
 
-// ============================================================================
-TEST_CASE("BytesParser<NBT::Int>") {
+// ================================================================================================
+TEST_CASE (
+"BytesParser<NBT::Int>"
+)
+ {
 
   ByteParser<INT_TYPE> parser;
 
@@ -94,8 +97,11 @@ TEST_CASE("BytesParser<NBT::Int>") {
   }
 }
 
-// ============================================================================
-TEST_CASE("BytesWriter<NBT::Int>") {
+// ================================================================================================
+TEST_CASE (
+"BytesWriter<NBT::Int>"
+)
+ {
 
   ByteWriter<INT_TYPE> dumper;
   std::array<char, TYPE_SIZE> buffer;

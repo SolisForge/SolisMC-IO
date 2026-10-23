@@ -1,14 +1,18 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-IO
 //
 // Common resources for byte IO
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      13/10/2026 (created 10/08/2026)
+// Created   10/08/2026
+// ================================================================================================
+
+// ================================================================================================
 // Version   1.0.0
-// Copyright Solis Forge | 2026
+// Modified  23/10/2026
+// Copyright Solis Forge | 2026 - 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
 
 #include <algorithm>
@@ -17,16 +21,15 @@
 #include <cstdint>
 
 namespace minecraft::nbt::byte {
-
-// ============================================================================
+// ================================================================================================
 // Parse / dump results
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Result of the byte parsing
  */
 enum class ParseResult : uint8_t {
-  ENDED,     //< Parsing has ended
+  ENDED, //< Parsing has ended
   UNFINISHED //< Parsing is not finished yet
 };
 
@@ -34,14 +37,14 @@ enum class ParseResult : uint8_t {
  * @brief Result of the byte parsing
  */
 enum class DumpResult : uint8_t {
-  ENDED,      //< Dump has ended
+  ENDED, //< Dump has ended
   UNFINISHED, //< Dump is not finished yet
-  UNBOUND     //< Value has not been bound to the parser
+  UNBOUND //< Value has not been bound to the parser
 };
 
-// ============================================================================
+// ================================================================================================
 // Stream container
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Stream container
@@ -62,16 +65,17 @@ struct Stream {
   }
 };
 
-// ============================================================================
+// ================================================================================================
 // Generic parsing/dumping state
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Basic read/write item counter
  *
  * @tparam T counter of element's type
  */
-template <std::unsigned_integral T> struct RWState {
+template<std::unsigned_integral T>
+struct RWState {
   T processed{0};
 
   inline auto left(T size) const {
@@ -80,5 +84,4 @@ template <std::unsigned_integral T> struct RWState {
 
   void reset() { processed = 0; }
 };
-
 } // namespace minecraft::nbt::byte

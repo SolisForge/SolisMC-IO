@@ -19,41 +19,41 @@
 #include <doctest.h>
 
 namespace minecraft::nbt {
-
-// ============================================================================
+// ================================================================================================
 // Template declaration
-// ============================================================================
+// ================================================================================================
 
 struct IExpected {
-  ParseResult result;
-  size_t name_size;
-  const char *name;
+    ParseResult result;
+    size_t name_size;
+    const char *name;
 };
 
-template <typename T, typename V = void> struct Expected;
+template<typename T, typename V = void>
+struct Expected;
 
-// ============================================================================
+// ================================================================================================
 // Implementation of Expected for the several NBT types
-// ============================================================================
+// ================================================================================================
 
-template <typename T>
+template<typename T>
 struct Expected<T, typename std::enable_if<
-                       solis::is_specialization<T, NBTPrimitive>::value>::type>
-    : IExpected {
-  typename T::CType value;
+            solis::is_specialization<T, NBTPrimitive>::value>::type>
+        : IExpected {
+    typename T::CType value;
 
-  /**
+    /**
    * @brief Compare NBT primitive to the expected result
    *
    * @param r the result of the parsing
    * @param got the value object that the parsing gave
    */
-  inline void compare_to(ParseResult r, T *got) {
-    CHECK(r == result);
-    CHECK(got->getNameSize() == name_size);
-    CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
-    CHECK(got->val == value);
-  }
+    inline void compare_to(ParseResult r, T *got) {
+        CHECK(r == result);
+        CHECK(got->getNameSize() == name_size);
+        CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
+        CHECK(got->val == value);
+    }
 };
 
 /**
@@ -62,42 +62,42 @@ struct Expected<T, typename std::enable_if<
  * @param r the result of the parsing
  * @param got the string object that the parsing gave
  */
-template <> struct Expected<String> : IExpected {
-  size_t value_size;
-  const char *value;
+template<>
+struct Expected<String> : IExpected {
+    size_t value_size;
+    const char *value;
 
-  inline void compare_to(ParseResult r, String *got) {
-    CHECK(r == result);
-    CHECK(got->getNameSize() == name_size);
-    CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
-    CHECK(got->val_size == value_size);
-    CHECK(strncmp(got->val, value, got->val_size) == 0);
-  }
+    inline void compare_to(ParseResult r, String *got) {
+        CHECK(r == result);
+        CHECK(got->getNameSize() == name_size);
+        CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
+        CHECK(got->val_size == value_size);
+        CHECK(strncmp(got->val, value, got->val_size) == 0);
+    }
 };
 
-template <typename T>
+template<typename T>
 struct Expected<
-    T, typename std::enable_if<solis::is_specialization<T, List>::value>::type>
-    : IExpected {
-  int32_t vector_size;
-  std::vector<typename T::CType> vector;
+            T, typename std::enable_if<solis::is_specialization<T, List>::value>::type>
+        : IExpected {
+    int32_t vector_size;
+    std::vector<typename T::CType> vector;
 
-  /**
+    /**
    * @brief Compare NBT list to the expected result
    *
    * @param r the result of the parsing
    * @param got the value object that the parsing gave
    */
-  inline void compare_to(ParseResult r, T *got) {
-    CHECK(r == result);
-    CHECK(got->getNameSize() == name_size);
-    CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
-    CHECK(got->size() == vector_size);
-    for (uint32_t i = 0; i < got->size(); i++)
-      CHECK((*got)[i] == vector[i]);
-  }
+    inline void compare_to(ParseResult r, T *got) {
+        CHECK(r == result);
+        CHECK(got->getNameSize() == name_size);
+        CHECK(strncmp(got->getName(), name, got->getNameSize()) == 0);
+        CHECK(got->size() == vector_size);
+        for (uint32_t i = 0; i < got->size(); i++)
+            CHECK((*got)[i] == vector[i]);
+    }
 };
-
 } // namespace minecraft::nbt
 
 #endif

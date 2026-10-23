@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC-FILEIO
 //
 // Generic compound object import logic
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #ifndef SOLISMC_NBT_BYTE_PARSING_COMPOUND_PARSER
 #define SOLISMC_NBT_BYTE_PARSING_COMPOUND_PARSER
 #include "minecraft/io/nbt/bytes/interface.hpp"
@@ -24,8 +24,7 @@
 #include <vector>
 
 namespace minecraft::nbt::byte::base {
-
-// ============================================================================
+// ================================================================================================
 
 /**
  * @brief Implementation of the byte parser for C++ objects.
@@ -33,35 +32,36 @@ namespace minecraft::nbt::byte::base {
  * @tparam Adapter adapter to fill the C++ structure
  * @tparam GV the GameVersion to use
  */
-template <GameVersion GV> struct CompoundParser : ObjectParserInterface<GV> {
-
-  /**
+template<GameVersion GV>
+struct CompoundParser : ObjectParserInterface<GV> {
+    /**
    * @brief Construct a new parser with a new internally initialized object
    */
-  explicit CompoundParser<GV>() : ObjectParserInterface<GV>() {}
+    explicit CompoundParser<GV>() : ObjectParserInterface<GV>() {
+    }
 
-  inline Compound &&get() { return std::move(obj); }
+    inline Compound &&get() { return std::move(obj); }
 
-  FieldValue get_value() const noexcept override {
-    return FieldValue(Tag::COMPOUND, obj);
-  }
+    FieldValue get_value() const noexcept override {
+        return FieldValue(Tag::COMPOUND, obj);
+    }
 
 protected:
-  Compound obj;
+    Compound obj;
 
-  ParseResult get_value_parser() override;
+    ParseResult get_value_parser() override;
 
-  void set_value() override {
-    obj.set(this->info_.name, this->value_parser_->get_value());
-  }
+    void set_value() override {
+        obj.set(this->info_.name, this->value_parser_->get_value());
+    }
 };
 
-template <> REGISTER_BYTE_PARSER(Compound, GameVersion::JAVA, CompoundParser);
-template <>
+template<>
+REGISTER_BYTE_PARSER(Compound, GameVersion::JAVA, CompoundParser);
+template<>
 REGISTER_BYTE_PARSER(Compound, GameVersion::BEDROCK, CompoundParser);
 
 DECLARE_COMMON_NBT_PARSER_IMPL(GameVersion::JAVA, Compound);
 DECLARE_COMMON_NBT_PARSER_IMPL(GameVersion::BEDROCK, Compound);
-
 } // namespace minecraft::nbt::byte::base
 #endif

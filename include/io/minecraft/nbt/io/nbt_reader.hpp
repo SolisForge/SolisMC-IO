@@ -19,38 +19,36 @@
 #include <string>
 
 namespace minecraft::nbt {
-
 constexpr size_t CHUNK_SIZE{16384};
 
 class NBTReader {
 public:
-  NBTReader();
+    NBTReader();
 
-  template <typename T>
-  inline static T parse_file(const char *filename, bool compressed = true) {
-    return parse_string<T>(get_file_content(filename), compressed);
-  }
+    template<typename T>
+    inline static T parse_file(const char *filename, bool compressed = true) {
+        return parse_string<T>(get_file_content(filename), compressed);
+    }
 
-  template <typename T>
-  static T parse_string(const std::string &stream, bool compressed = true);
+    template<typename T>
+    static T parse_string(const std::string &stream, bool compressed = true);
 
-  // ============================================================================
-  //    IO related methods
-  // ============================================================================
+    // ================================================================================================
+    //    IO related methods
+    // ================================================================================================
 protected:
-  /**
+    /**
    * @brief Get the file content object
    *
    * @param filename
    */
-  static std::string get_file_content(const char *filename);
+    static std::string get_file_content(const char *filename);
 
-  // ============================================================================
-  //    Conversion related methods
-  // ============================================================================
+    // ================================================================================================
+    //    Conversion related methods
+    // ================================================================================================
 protected:
 };
-
 } // namespace minecraft::nbt
 
 #endif

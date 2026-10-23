@@ -1,4 +1,4 @@
-// ============================================================================
+// ================================================================================================
 // Project: SOLISMC_IO
 //
 // Compound encoding / decoding for the nbt utility app
@@ -8,7 +8,7 @@
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// ============================================================================
+// ================================================================================================
 #pragma once
 
 #include <string>
@@ -26,5 +26,4 @@ std::string compound_export(Compound const &);
  * @brief Import a compound from a string representation
  */
 Compound compound_import(std::string_view);
-
 } // namespace minecraft::nbt::app
